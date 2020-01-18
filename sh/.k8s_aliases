@@ -1,0 +1,197 @@
+#
+# shortcuts to streamline docker and kubectl cli interaction
+#
+
+# override kubectl to maintain environment
+KUBECTL_CMD=$(which kubectl)
+
+# override kubectl so environment is always legit
+kubectl_cmd() {
+    case $1 in
+    config)
+       case $2 in
+         current-context)
+            kubectl_config
+         ;;
+         use-context)
+            kubectl_config $3
+         ;;
+         get-contexts)
+            kubectl_config ls
+         ;;
+         *)
+           $KUBECTL_CMD $@
+         ;;
+         esac
+    ;;
+    *)
+      echo $KUBECTL_CMD $@
+    ;;
+    esac
+}
+
+docker_ps() {
+    docker ps $@
+}
+
+docker_kill() {
+    docker kill $@
+}
+
+docker_rmi() {
+    docker rmi $@
+}
+
+docker_shell() {
+    docker exec -it $1 /bin/bash
+}
+
+docker_run_shell() {
+    docker run -it $1 /bin/bash
+}
+
+kubectl_get() {
+    $KUBECTL_CMD get $@
+}
+
+kubectl_explain() {
+    $KUBECTL_CMD explain $@
+}
+
+kubectl_get_pods() {
+    export K8S_PODS=$($KUBECTL_CMD get pods | awk '{if (NR == 1){ print "    " $0 }else{ printf "%-4s%s\n", NR-1, $0 }}')
+    echo "$K8S_PODS"
+}
+
+kubectl_cmd_on_pod_index() {
+    POD_INDEX=$1; shift
+    CMD=$1; shift
+    ((POD_INDEX+=1))
+    if [[ -z "${K8S_PODS}" ]]; then
+        kubectl_get_pods
+        k8s_prompt "Sorry, what was that number?"
+    else
+        K8S_NEW_POD=$(echo "$K8S_PODS" | sed "${POD_INDEX}q;d" | awk '{print $2}')
+        $CMD $K8S_NEW_POD $@
+    fi
+}
+
+kubectl_get_pod() {
+    case $1 in
+      [0-9]|[0-9][0-9]|[0-9][0-9][0-9])
+        LINE_NUMBER=$1; shift
+        kubectl_cmd_on_pod_index $LINE_NUMBER kubectl_get_pod $@
+        ;;
+      '')
+        kubectl_get_pods
+        ;;
+      *)
+        $KUBECTL_CMD get pod $@
+        ;;
+    esac
+}
+
+kubectl_log() {
+    case $1 in
+      [0-9]|[0-9][0-9]|[0-9][0-9][0-9])
+        LINE_NUMBER=$1; shift
+        kubectl_cmd_on_pod_index $LINE_NUMBER kubectl_log $@
+        ;;
+      "")
+        kubectl_get_pods
+        k8s_prompt "Which logs would you like to see?"
+        ;;
+      *)
+        $KUBECTL_CMD logs $@
+        ;;
+    esac
+}
+
+kubectl_shell() {
+    case $1 in
+      [0-9]|[0-9][0-9]|[0-9][0-9][0-9])
+        LINE_NUMBER=$1; shift
+        kubectl_cmd_on_pod_index $LINE_NUMBER kubectl_shell
+        ;;
+      "")
+        kubectl_get_pods
+        k8s_prompt "Which pod would you like a shell?"
+        ;;
+      *)
+        $KUBECTL_CMD exec -it $1 -- bash
+        ;;
+    esac
+}
+
+k8s_config_short_name() {
+    case $1 in
+      arn\:aws*)
+        echo $1 | sed 's/.*:\([^:]*\)$/\1/'
+        ;;
+      gke_*)
+        echo $1 | sed 's/^gke_\([a-z]*\)-\([a-z]*\)-\([0-9]*\).*$/\2-\3/'
+        ;;
+      *)
+        echo $1
+        ;;
+    esac
+}
+
+k8s_prompt() {
+    TTY_BOLD=$(tput bold)
+    TTY_NORMAL=$(tput sgr0)
+    echo ${TTY_BOLD}${1}${TTY_NORMAL}
+}
+
+k8s_prompt_string() {
+    K8S_CFG_SHORT=$(k8s_config_short_name $1)
+    PS1=$(echo $PS1 | sed 's/^(.*)\([^)]*\)$/\1/')
+    export PS1="($K8S_CFG_SHORT)$PS1 "
+}
+
+kubectl_config() {
+    case $1 in
+#      '')
+#        K8S_OUT=$($KUBECTL_CMD config current-context)
+#        k8s_prompt_string $K8S_OUT
+#        echo $K8S_OUT
+#        ;;
+      '')
+        K8S_OUT=$($KUBECTL_CMD config get-contexts)
+        K8S_CURRENT_CONTEXT=$(echo "$K8S_OUT" | awk '/^\*/{print $2}')
+        k8s_prompt_string $K8S_CURRENT_CONTEXT
+        echo "$K8S_OUT" | awk '{if (NR == 1){ print "    " $0 }else{ printf "%-4s%s\n", NR-1, $0 }}'
+        ;;
+      arn*|gke*)
+        K8S_OUT=$($KUBECTL_CMD config use-context $1)
+        K8S_CONTEXT=$(echo $K8S_OUT | awk '/Switched to context/{print $4}' | tr -d \")
+        k8s_prompt_string $K8S_CONTEXT
+        echo "$K8S_OUT"
+        ;;
+      [0-9]|[0-9][0-9]|[0-9][0-9][0-9])
+        K8S_OUT=$($KUBECTL_CMD config get-contexts)
+        LINE_NUMBER=$1
+        ((LINE_NUMBER+=1))
+        K8S_NEW_CONTEXT=$(echo "$K8S_OUT" | sed "${LINE_NUMBER}q;d" | awk '{print $1}')
+        kubectl_config $K8S_NEW_CONTEXT
+        ;;
+      *)
+        echo unknown config command
+        ;;
+    esac
+}
+
+# set prompt
+kubectl_config > /dev/null
+
+alias kubectl=kubectl_cmd
+alias dps=docker_ps
+alias dkill=docker_kill
+alias dsh=docker_shell
+alias drmi=docker_rmi
+alias kex=kubectl_explain
+alias kg=kubectl_get
+alias kgp=kubectl_get_pod
+alias ksh=kubectl_shell
+alias kl=kubectl_log
+alias kcfg=kubectl_config

@@ -17,7 +17,7 @@ kubectl_cmd() {
             kubectl_config $3
          ;;
          get-contexts)
-            kubectl_config ls
+            kubectl_config
          ;;
          *)
            $KUBECTL_CMD $@
@@ -25,13 +25,17 @@ kubectl_cmd() {
          esac
     ;;
     *)
-      echo $KUBECTL_CMD $@
+      $KUBECTL_CMD $@
     ;;
     esac
 }
 
 docker_ps() {
     docker ps $@
+}
+
+docker_image_ls() {
+    docker image ls
 }
 
 docker_kill() {
@@ -181,11 +185,43 @@ kubectl_config() {
     esac
 }
 
+kubectl_help() {
+cat<<EOF
+shorthand aliases:
+    dps   = docker ps
+    dls   = docker image ls
+    dkill = docker kill <arg>
+    dsh   = docker exec -it <arg> bash
+    kex   = kubectl explain <arg list>
+    kg    = kubectl get <arg lists>
+    kgp   = kubectl get pod [<arg>]
+            no <arg> lists pods
+            <arg> can be pod id or index of listed pods
+    ksh   = kubectl exec -it <arg>
+            no <arg> lists pods
+            <arg> can be pod id or index of listed pods
+    kl    = kubectl logs <arg list>
+            no <arg list> lists pods
+            <arg_list> can be pod or app label or index of listed pods
+            example:  kl -l app.kubernetes.io/name=infohub-prod-test -f
+    kcfg  = kubectl config [use,get]-contexts <args>
+            no <args> shows available contexts
+            <args> can be context name or index of listed contexts
+    kh    = this help text
+
+helpful commands:
+
+    kubectl logs -f -l name=flux -c flux -n mci-shared"
+
+EOF
+}
+
 # set prompt
 kubectl_config > /dev/null
 
 alias kubectl=kubectl_cmd
 alias dps=docker_ps
+alias dls=docker_image_ls
 alias dkill=docker_kill
 alias dsh=docker_shell
 alias drmi=docker_rmi
@@ -195,3 +231,4 @@ alias kgp=kubectl_get_pod
 alias ksh=kubectl_shell
 alias kl=kubectl_log
 alias kcfg=kubectl_config
+alias kh=kubectl_help

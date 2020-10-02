@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 31,
-  "iteration": 1601651473204,
+  "iteration": 1601651473220,
   "links": [],
   "panels": [
     {
@@ -59,23 +59,26 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(restclient_response_status_code_count{service=~\"^$service$\",exported_service=\"uwnetid\"})",
-          "refId": "A"
-        },
-        {
-          "expr": "sum(restclient_response_status_code_count{service=~\"^$service$\",exported_service=\"gws\"})",
+          "expr": "sum(irate(restclient_response_status_code_count{service=\"$service\",exported_service=\"pws\"}[1m]))",
+          "legendFormat": "$service PWS",
           "refId": "B"
         },
         {
-          "expr": "sum(restclient_response_status_code_count{service=~\"^$service$\",exported_service=\"pws\"})",
+          "expr": "sum(irate(restclient_response_status_code_count{service=\"$service\",exported_service=\"gws\"}[1m]))",
+          "legendFormat": "$service GWS",
           "refId": "C"
+        },
+        {
+          "expr": "sum(irate(restclient_response_status_code_count{service=\"$service\",exported_service=\"uwnetid\"}[1m]))",
+          "legendFormat": "$service UWNetid WS",
+          "refId": "A"
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Restclient request rate",
+      "title": "Restclient Request Rate per Minute",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -628,5 +631,5 @@
   "timezone": "",
   "title": "Restclients Health",
   "uid": "e2SMPsFMz",
-  "version": 2
+  "version": 3
 }

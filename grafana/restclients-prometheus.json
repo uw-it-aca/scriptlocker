@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 31,
-  "iteration": 1601667390948,
+  "iteration": 1601673391669,
   "links": [],
   "panels": [
     {
@@ -59,29 +59,9 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(irate(restclient_response_status_code_count{service=\"$service\",exported_service=\"pws\"}[1m]))",
-          "legendFormat": "PWS",
+          "expr": "sum(irate(restclient_response_status_code_count{service=\"$service\"}[10m])) by (exported_service)",
+          "legendFormat": "{{exported_service}}",
           "refId": "B"
-        },
-        {
-          "expr": "sum(irate(restclient_response_status_code_count{service=\"$service\",exported_service=\"gws\"}[1m]))",
-          "legendFormat": "GWS",
-          "refId": "C"
-        },
-        {
-          "expr": "sum(irate(restclient_response_status_code_count{service=\"$service\",exported_service=\"sws\"}[1m]))",
-          "legendFormat": "SWS",
-          "refId": "E"
-        },
-        {
-          "expr": "sum(irate(restclient_response_status_code_count{service=\"$service\",exported_service=\"uwnetid\"}[1m]))",
-          "legendFormat": "UWNetid WS",
-          "refId": "A"
-        },
-        {
-          "expr": "sum(irate(restclient_response_status_code_count{service=\"$service\",exported_service=\"canvas\"}[1m]))",
-          "legendFormat": "Canvas API",
-          "refId": "D"
         }
       ],
       "thresholds": [],
@@ -127,7 +107,7 @@
     },
     {
       "aliasColors": {},
-      "bars": false,
+      "bars": true,
       "dashLength": 10,
       "dashes": false,
       "datasource": "prometheus",
@@ -149,7 +129,7 @@
         "total": false,
         "values": false
       },
-      "lines": true,
+      "lines": false,
       "linewidth": 1,
       "nullPointMode": "null",
       "options": {
@@ -165,28 +145,10 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(restclient_request_timeout_total{service=\"$service\",exported_service=\"gws\"})",
+          "expr": "sum(restclient_request_timeout_total{service=\"$service\"}) by (exported_service)",
           "interval": "",
-          "legendFormat": "GWS",
+          "legendFormat": "{{exported_service}}",
           "refId": "A"
-        },
-        {
-          "expr": "sum(restclient_request_timeout_total{service=\"$service\",exported_service=\"pws\"})",
-          "interval": "",
-          "legendFormat": "PWS",
-          "refId": "B"
-        },
-        {
-          "expr": "sum(restclient_request_timeout_total{service=\"$service\",exported_service=\"sws\"})",
-          "interval": "",
-          "legendFormat": "SWS",
-          "refId": "D"
-        },
-        {
-          "expr": "sum(restclient_request_timeout_total{service=\"$service\",exported_service=\"uwnetid\"})",
-          "interval": "",
-          "legendFormat": "UWNetid WS",
-          "refId": "C"
         }
       ],
       "thresholds": [],
@@ -209,6 +171,7 @@
       },
       "yaxes": [
         {
+          "decimals": 0,
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -236,7 +199,7 @@
         "cardRound": null
       },
       "color": {
-        "cardColor": "#FF9830",
+        "cardColor": "#73BF69",
         "colorScale": "sqrt",
         "colorScheme": "interpolateOranges",
         "exponent": 0.5,
@@ -293,66 +256,112 @@
       "yBucketSize": null
     },
     {
-      "cards": {
-        "cardPadding": null,
-        "cardRound": null
+      "aliasColors": {
+        "200": "green",
+        "300": "semi-dark-yellow",
+        "400": "red"
       },
-      "color": {
-        "cardColor": "#FF9830",
-        "colorScale": "sqrt",
-        "colorScheme": "interpolateOranges",
-        "exponent": 0.5,
-        "mode": "opacity"
-      },
-      "dataFormat": "timeseries",
+      "bars": false,
+      "cacheTimeout": null,
+      "dashLength": 10,
+      "dashes": false,
       "datasource": "prometheus",
+      "fill": 10,
+      "fillGradient": 0,
       "gridPos": {
         "h": 7,
         "w": 24,
         "x": 0,
         "y": 17
       },
-      "heatmap": {},
-      "hideZeroBuckets": false,
-      "highlightCards": true,
       "id": 16,
       "legend": {
-        "show": false
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
       },
-      "options": {},
-      "reverseYBuckets": false,
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pluginVersion": "6.4.3",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
       "targets": [
         {
-          "expr": "histogram_quantile(1.0, sum(irate(restclient_response_status_code_bucket{service=~\"^$service$\",exported_service=\"$exported_service\"}[1m])) by (le))",
-          "legendFormat": "$exported_service",
+          "expr": "sum(rate(restclient_response_status_code_bucket{exported_service=\"$exported_service\",job=\"$service\",le=\"200.0\"}[10m])) - sum(rate(restclient_response_status_code_bucket{exported_service=\"$exported_service\",job=\"$service\",le=\"100.0\"}[10m]))",
+          "legendFormat": "200",
+          "refId": "C"
+        },
+        {
+          "expr": "sum(rate(restclient_response_status_code_bucket{exported_service=\"$exported_service\",job=\"$service\",le=\"300.0\"}[10m])) - sum(rate(restclient_response_status_code_bucket{exported_service=\"$exported_service\",job=\"$service\",le=\"200.0\"}[10m]))",
+          "legendFormat": "300",
           "refId": "A"
+        },
+        {
+          "expr": "sum(rate(restclient_response_status_code_bucket{exported_service=\"$exported_service\",job=\"$service\",le=\"400.0\"}[10m])) - sum(rate(restclient_response_status_code_bucket{exported_service=\"$exported_service\",job=\"$service\",le=\"300.0\"}[10m]))",
+          "legendFormat": "400",
+          "refId": "B"
+        },
+        {
+          "expr": "sum(rate(restclient_response_status_code_bucket{exported_service=\"$exported_service\",job=\"$service\",le=\"inf\"}[10m])) - sum(rate(restclient_response_status_code_bucket{exported_service=\"$exported_service\",job=\"$service\",le=\"400.0\"}[10m]))",
+          "legendFormat": "500",
+          "refId": "D"
         }
       ],
+      "thresholds": [],
       "timeFrom": null,
+      "timeRegions": [],
       "timeShift": null,
       "title": "$exported_service response status",
       "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
         "show": true,
-        "showHistogram": false
+        "values": []
       },
-      "type": "heatmap",
-      "xAxis": {
-        "show": true
-      },
-      "xBucketNumber": null,
-      "xBucketSize": null,
-      "yAxis": {
-        "decimals": null,
-        "format": "short",
-        "logBase": 1,
-        "max": "500",
-        "min": "100",
-        "show": true,
-        "splitFactor": null
-      },
-      "yBucketBound": "auto",
-      "yBucketNumber": null,
-      "yBucketSize": null
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     }
   ],
   "refresh": "5m",
@@ -365,6 +374,7 @@
         "allValue": null,
         "current": {
           "selected": false,
+          "tags": [],
           "text": "myuw-prod-prod",
           "value": "myuw-prod-prod"
         },
@@ -390,10 +400,9 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
           "tags": [],
-          "text": "sws",
-          "value": "sws"
+          "text": "gws",
+          "value": "gws"
         },
         "datasource": "prometheus",
         "definition": "label_values(restclient_request_duration_seconds_bucket{service=\"$service\"}, exported_service)",
@@ -417,7 +426,7 @@
     ]
   },
   "time": {
-    "from": "now-1h",
+    "from": "now-2d",
     "to": "now"
   },
   "timepicker": {
@@ -437,5 +446,5 @@
   "timezone": "",
   "title": "Restclients Health",
   "uid": "e2SMPsFMz",
-  "version": 8
+  "version": 11
 }

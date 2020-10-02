@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 30,
-  "iteration": 1601596090642,
+  "iteration": 1601651717372,
   "links": [],
   "panels": [
     {
@@ -28,7 +28,7 @@
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
-        "h": 10,
+        "h": 12,
         "w": 24,
         "x": 0,
         "y": 0
@@ -67,7 +67,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Panel Title",
+      "title": "Memcached Capacity Percentage",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -105,6 +105,7 @@
       }
     }
   ],
+  "refresh": "1m",
   "schemaVersion": 20,
   "style": "dark",
   "tags": [],
@@ -113,8 +114,7 @@
       {
         "allValue": null,
         "current": {
-          "isNone": true,
-          "tags": [],
+          "selected": true,
           "text": "myuw-prod-prod-memcached",
           "value": "myuw-prod-prod-memcached"
         },
@@ -186,7 +186,7 @@
     ]
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-1h",
     "to": "now"
   },
   "timepicker": {
@@ -206,5 +206,5 @@
   "timezone": "",
   "title": "Memcached Capacity",
   "uid": "3GyyeYKGk",
-  "version": 5
+  "version": 6
 }

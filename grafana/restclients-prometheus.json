@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 31,
-  "iteration": 1601651473220,
+  "iteration": 1601651473232,
   "links": [],
   "panels": [
     {
@@ -60,17 +60,17 @@
       "targets": [
         {
           "expr": "sum(irate(restclient_response_status_code_count{service=\"$service\",exported_service=\"pws\"}[1m]))",
-          "legendFormat": "$service PWS",
+          "legendFormat": "PWS",
           "refId": "B"
         },
         {
           "expr": "sum(irate(restclient_response_status_code_count{service=\"$service\",exported_service=\"gws\"}[1m]))",
-          "legendFormat": "$service GWS",
+          "legendFormat": "GWS",
           "refId": "C"
         },
         {
           "expr": "sum(irate(restclient_response_status_code_count{service=\"$service\",exported_service=\"uwnetid\"}[1m]))",
-          "legendFormat": "$service UWNetid WS",
+          "legendFormat": "UWNetid WS",
           "refId": "A"
         }
       ],
@@ -155,15 +155,21 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(irate(restclient_request_timeout_total{service=~\"^$service$\",exported_service=\"uwnetid\"}[1m]))",
+          "expr": "sum(restclient_request_timeout_total{service=\"$service\",exported_service=\"gws\"})",
+          "interval": "",
+          "legendFormat": "GWS",
           "refId": "A"
         },
         {
-          "expr": "sum(irate(restclient_request_timeout_total{service=~\"^$service$\",exported_service=\"pws\"}[1m]))",
+          "expr": "sum(restclient_request_timeout_total{service=\"$service\",exported_service=\"pws\"})",
+          "interval": "",
+          "legendFormat": "PWS",
           "refId": "B"
         },
         {
-          "expr": "sum(irate(restclient_request_timeout_total{service=~\"^$service$\",exported_service=\"gws\"}[1m]))",
+          "expr": "sum(restclient_request_timeout_total{service=\"$service\",exported_service=\"uwnetid\"})",
+          "interval": "",
+          "legendFormat": "UWNetid WS",
           "refId": "C"
         }
       ],
@@ -171,7 +177,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Restclients timeout",
+      "title": "Restclients Timeout Rate per Minute",
       "tooltip": {
         "shared": true,
         "sort": 0,

@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 31,
-  "iteration": 1601673391669,
+  "iteration": 1601673391705,
   "links": [],
   "panels": [
     {
@@ -224,14 +224,14 @@
       "reverseYBuckets": false,
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum(irate(restclient_request_duration_seconds_bucket{service=\"$service\",exported_service=\"$exported_service\"}[1m])) by (le))",
+          "expr": "histogram_quantile(1.0, sum(irate(restclient_request_duration_seconds_bucket{service=\"$service\",exported_service=\"$exported_service\"}[1m])) by (le))",
           "legendFormat": "$exported_service",
           "refId": "A"
         }
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "$exported_service reponse time",
+      "title": "$exported_service reponse time (sec)",
       "tooltip": {
         "show": true,
         "showHistogram": false
@@ -241,7 +241,7 @@
         "show": true
       },
       "xBucketNumber": null,
-      "xBucketSize": null,
+      "xBucketSize": "",
       "yAxis": {
         "decimals": null,
         "format": "short",
@@ -259,7 +259,7 @@
       "aliasColors": {
         "200": "green",
         "300": "semi-dark-yellow",
-        "400": "red"
+        "400": "light-red"
       },
       "bars": false,
       "cacheTimeout": null,
@@ -302,6 +302,11 @@
       "steppedLine": false,
       "targets": [
         {
+          "expr": "sum(rate(restclient_response_status_code_bucket{exported_service=\"$exported_service\",job=\"$service\",le=\"100.0\"}[10m]))",
+          "legendFormat": "100",
+          "refId": "E"
+        },
+        {
           "expr": "sum(rate(restclient_response_status_code_bucket{exported_service=\"$exported_service\",job=\"$service\",le=\"200.0\"}[10m])) - sum(rate(restclient_response_status_code_bucket{exported_service=\"$exported_service\",job=\"$service\",le=\"100.0\"}[10m]))",
           "legendFormat": "200",
           "refId": "C"
@@ -317,7 +322,7 @@
           "refId": "B"
         },
         {
-          "expr": "sum(rate(restclient_response_status_code_bucket{exported_service=\"$exported_service\",job=\"$service\",le=\"inf\"}[10m])) - sum(rate(restclient_response_status_code_bucket{exported_service=\"$exported_service\",job=\"$service\",le=\"400.0\"}[10m]))",
+          "expr": "sum(rate(restclient_response_status_code_bucket{exported_service=\"$exported_service\",job=\"$service\",le=\"500.0\"}[10m])) - sum(rate(restclient_response_status_code_bucket{exported_service=\"$exported_service\",job=\"$service\",le=\"400.0\"}[10m]))",
           "legendFormat": "500",
           "refId": "D"
         }
@@ -426,7 +431,7 @@
     ]
   },
   "time": {
-    "from": "now-2d",
+    "from": "now-24h",
     "to": "now"
   },
   "timepicker": {
@@ -446,5 +451,5 @@
   "timezone": "",
   "title": "Restclients Health",
   "uid": "e2SMPsFMz",
-  "version": 11
+  "version": 12
 }

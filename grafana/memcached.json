@@ -60,6 +60,7 @@
       "targets": [
         {
           "expr": "100 * (memcached_current_connections{service=\"$service\"} / memcached_max_connections{service=\"$service\"})",
+          "legendFormat": "{{pod}}",
           "refId": "A"
         }
       ],
@@ -206,5 +207,5 @@
   "timezone": "",
   "title": "Memcached Capacity",
   "uid": "3GyyeYKGk",
-  "version": 6
+  "version": 8
 }

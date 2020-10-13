@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 30,
-  "iteration": 1602606093692,
+  "iteration": 1602612711284,
   "links": [],
   "panels": [
     {
@@ -25,11 +25,12 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "prometheus",
+      "description": "",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
-        "h": 9,
-        "w": 24,
+        "h": 8,
+        "w": 20,
         "x": 0,
         "y": 0
       },
@@ -68,12 +69,13 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Memcached Capacity",
+      "title": "Memcached Connection Capacity",
       "tooltip": {
         "shared": true,
         "sort": 0,
         "value_type": "individual"
       },
+      "transparent": true,
       "type": "graph",
       "xaxis": {
         "buckets": null,
@@ -108,10 +110,10 @@
     {
       "datasource": "prometheus",
       "gridPos": {
-        "h": 5,
-        "w": 12,
-        "x": 0,
-        "y": 9
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 0
       },
       "id": 10,
       "options": {
@@ -153,15 +155,16 @@
       "timeFrom": null,
       "timeShift": null,
       "title": "hit rate",
+      "transparent": true,
       "type": "gauge"
     },
     {
       "datasource": "prometheus",
       "gridPos": {
-        "h": 5,
-        "w": 12,
-        "x": 12,
-        "y": 9
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 4
       },
       "id": 12,
       "options": {
@@ -203,10 +206,13 @@
       "timeFrom": null,
       "timeShift": null,
       "title": "get/set ratio",
+      "transparent": true,
       "type": "gauge"
     },
     {
-      "aliasColors": {},
+      "aliasColors": {
+        "percentage": "super-light-orange"
+      },
       "bars": false,
       "dashLength": 10,
       "dashes": false,
@@ -215,11 +221,112 @@
       "fillGradient": 0,
       "gridPos": {
         "h": 8,
-        "w": 24,
+        "w": 13,
         "x": 0,
-        "y": 14
+        "y": 8
       },
-      "id": 8,
+      "id": 14,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
+        {
+          "alias": "percentage",
+          "yaxis": 2
+        },
+        {
+          "alias": "capacity %",
+          "yaxis": 2
+        }
+      ],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "memcached_current_bytes{service=~\"$service\"}",
+          "legendFormat": "{{pod}}",
+          "refId": "A"
+        },
+        {
+          "expr": "avg(100 * (memcached_current_bytes{service=~\"$service\"} / memcached_limit_bytes{service=~\"$service\"}))",
+          "legendFormat": "capacity %",
+          "refId": "B"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Memory Use per Server",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "decbytes",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "percent",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": true,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "prometheus",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 8,
+        "w": 11,
+        "x": 13,
+        "y": 8
+      },
+      "id": 16,
       "legend": {
         "avg": false,
         "current": false,
@@ -241,25 +348,31 @@
       "renderer": "flot",
       "seriesOverrides": [],
       "spaceLength": 10,
-      "stack": false,
+      "stack": true,
       "steppedLine": false,
       "targets": [
         {
-          "expr": "memcached_current_items{service=~\"$service\"}",
-          "legendFormat": "{{pod}}",
+          "expr": "sum(memcached_current_bytes{service=~\"$service\"})",
+          "legendFormat": "bytes used",
           "refId": "A"
+        },
+        {
+          "expr": "sum(memcached_limit_bytes{service=~\"$service\"} - memcached_current_bytes{service=~\"$service\"})",
+          "legendFormat": "bytes free",
+          "refId": "B"
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "$service items in cache",
+      "title": "Aggregate Memory Usage",
       "tooltip": {
         "shared": true,
         "sort": 0,
         "value_type": "individual"
       },
+      "transparent": true,
       "type": "graph",
       "xaxis": {
         "buckets": null,
@@ -270,11 +383,11 @@
       },
       "yaxes": [
         {
-          "format": "short",
-          "label": "",
+          "format": "decbytes",
+          "label": null,
           "logBase": 1,
           "max": null,
-          "min": null,
+          "min": "0",
           "show": true
         },
         {
@@ -283,6 +396,111 @@
           "logBase": 1,
           "max": null,
           "min": null,
+          "show": false
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {
+        "sum": "super-light-orange",
+        "total": "super-light-orange"
+      },
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "prometheus",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 16
+      },
+      "id": 8,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
+        {
+          "alias": "sum",
+          "yaxis": 2
+        },
+        {
+          "alias": "total",
+          "yaxis": 2
+        }
+      ],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "memcached_current_items{service=~\"$service\"}",
+          "legendFormat": "{{pod}}",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(memcached_current_items{service=~\"$service\"})",
+          "legendFormat": "total",
+          "refId": "B"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Cache Items",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "decimals": null,
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": "0",
           "show": true
         }
       ],
@@ -292,7 +510,7 @@
       }
     }
   ],
-  "refresh": false,
+  "refresh": "5m",
   "schemaVersion": 20,
   "style": "dark",
   "tags": [],
@@ -302,6 +520,7 @@
         "allValue": null,
         "current": {
           "selected": true,
+          "tags": [],
           "text": "myuw-prod-prod-memcached",
           "value": "myuw-prod-prod-memcached"
         },
@@ -393,5 +612,5 @@
   "timezone": "",
   "title": "Memcached Capacity",
   "uid": "3GyyeYKGk",
-  "version": 12
+  "version": 18
 }

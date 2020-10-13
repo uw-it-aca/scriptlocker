@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 31,
-  "iteration": 1601673391705,
+  "iteration": 1602606341357,
   "links": [],
   "panels": [
     {
@@ -257,9 +257,10 @@
     },
     {
       "aliasColors": {
-        "200": "green",
+        "200": "semi-dark-green",
         "300": "semi-dark-yellow",
-        "400": "light-red"
+        "400": "semi-dark-orange",
+        "500": "dark-red"
       },
       "bars": false,
       "cacheTimeout": null,
@@ -351,7 +352,7 @@
           "label": null,
           "logBase": 1,
           "max": null,
-          "min": null,
+          "min": "0",
           "show": true
         },
         {
@@ -360,7 +361,7 @@
           "logBase": 1,
           "max": null,
           "min": null,
-          "show": true
+          "show": false
         }
       ],
       "yaxis": {
@@ -379,7 +380,6 @@
         "allValue": null,
         "current": {
           "selected": false,
-          "tags": [],
           "text": "myuw-prod-prod",
           "value": "myuw-prod-prod"
         },
@@ -405,9 +405,9 @@
       {
         "allValue": null,
         "current": {
-          "tags": [],
-          "text": "gws",
-          "value": "gws"
+          "selected": true,
+          "text": "pws",
+          "value": "pws"
         },
         "datasource": "prometheus",
         "definition": "label_values(restclient_request_duration_seconds_bucket{service=\"$service\"}, exported_service)",
@@ -431,7 +431,7 @@
     ]
   },
   "time": {
-    "from": "now-24h",
+    "from": "now-3h",
     "to": "now"
   },
   "timepicker": {
@@ -451,5 +451,5 @@
   "timezone": "",
   "title": "Restclients Health",
   "uid": "e2SMPsFMz",
-  "version": 12
+  "version": 14
 }

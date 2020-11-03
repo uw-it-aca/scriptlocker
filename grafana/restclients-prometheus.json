@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 31,
-  "iteration": 1602606341357,
+  "id": 29,
+  "iteration": 1604424411097,
   "links": [],
   "panels": [
     {
@@ -84,11 +84,12 @@
       },
       "yaxes": [
         {
+          "decimals": null,
           "format": "short",
           "label": null,
           "logBase": 1,
           "max": null,
-          "min": null,
+          "min": "0",
           "show": true
         },
         {
@@ -176,7 +177,7 @@
           "label": null,
           "logBase": 1,
           "max": null,
-          "min": null,
+          "min": "0",
           "show": true
         },
         {
@@ -379,9 +380,9 @@
       {
         "allValue": null,
         "current": {
-          "selected": false,
-          "text": "myuw-prod-prod",
-          "value": "myuw-prod-prod"
+          "tags": [],
+          "text": "myuw-prod-vue",
+          "value": "myuw-prod-vue"
         },
         "datasource": "prometheus",
         "definition": "label_values(kube_deployment_labels{namespace=\"default\"}, deployment)",
@@ -405,7 +406,7 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
+          "tags": [],
           "text": "pws",
           "value": "pws"
         },
@@ -451,5 +452,5 @@
   "timezone": "",
   "title": "Restclients Health",
   "uid": "e2SMPsFMz",
-  "version": 14
+  "version": 3
 }

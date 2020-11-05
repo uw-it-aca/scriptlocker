@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 30,
-  "iteration": 1602612711284,
+  "id": 28,
+  "iteration": 1604594693161,
   "links": [],
   "panels": [
     {
@@ -260,7 +260,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "memcached_current_bytes{service=~\"$service\"}",
+          "expr": "memcached_current_bytes{service=\"$service\"}",
           "legendFormat": "{{pod}}",
           "refId": "A"
         },
@@ -405,6 +405,103 @@
       }
     },
     {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "prometheus",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 16
+      },
+      "id": 18,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "sum(rate(memcached_commands_total{command=\"get\",service=\"$service\"}[1m]))",
+          "legendFormat": "get",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(rate(memcached_commands_total{command=\"set\",service=\"$service\"}[1m]))",
+          "legendFormat": "set",
+          "refId": "B"
+        },
+        {
+          "expr": "sum(rate(memcached_commands_total{command=\"flush\",service=\"$service\"}[1m]))",
+          "legendFormat": "flush",
+          "refId": "C"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Command rate",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "reqps",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": false
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
       "aliasColors": {
         "sum": "super-light-orange",
         "total": "super-light-orange"
@@ -419,7 +516,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 16
+        "y": 23
       },
       "id": 8,
       "legend": {
@@ -519,10 +616,9 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
-          "tags": [],
-          "text": "myuw-prod-prod-memcached",
-          "value": "myuw-prod-prod-memcached"
+          "selected": false,
+          "text": "myuw-prod-test-memcached",
+          "value": "myuw-prod-test-memcached"
         },
         "datasource": "prometheus",
         "definition": "label_values(kube_service_info{service=~\".*-memcached\"}, service)",
@@ -531,55 +627,9 @@
         "label": "service",
         "multi": false,
         "name": "service",
-        "options": [
-          {
-            "selected": false,
-            "text": "flux-memcached",
-            "value": "flux-memcached"
-          },
-          {
-            "selected": false,
-            "text": "coda-prod-prod-memcached",
-            "value": "coda-prod-prod-memcached"
-          },
-          {
-            "selected": false,
-            "text": "course-roster-prod-prod-memcached",
-            "value": "course-roster-prod-prod-memcached"
-          },
-          {
-            "selected": false,
-            "text": "eventcal-prod-prod-memcached",
-            "value": "eventcal-prod-prod-memcached"
-          },
-          {
-            "selected": false,
-            "text": "gradepage-prod-prod-memcached",
-            "value": "gradepage-prod-prod-memcached"
-          },
-          {
-            "selected": false,
-            "text": "infohub-prod-prod-memcached",
-            "value": "infohub-prod-prod-memcached"
-          },
-          {
-            "selected": false,
-            "text": "libguides-prod-prod-memcached",
-            "value": "libguides-prod-prod-memcached"
-          },
-          {
-            "selected": true,
-            "text": "myuw-prod-prod-memcached",
-            "value": "myuw-prod-prod-memcached"
-          },
-          {
-            "selected": false,
-            "text": "notify-prod-prod-memcached",
-            "value": "notify-prod-prod-memcached"
-          }
-        ],
+        "options": [],
         "query": "label_values(kube_service_info{service=~\".*-memcached\"}, service)",
-        "refresh": 0,
+        "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
         "sort": 0,
@@ -592,7 +642,7 @@
     ]
   },
   "time": {
-    "from": "now-3h",
+    "from": "now-1h",
     "to": "now"
   },
   "timepicker": {
@@ -612,5 +662,5 @@
   "timezone": "",
   "title": "Memcached Capacity",
   "uid": "3GyyeYKGk",
-  "version": 18
+  "version": 2
 }

@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 34,
-  "iteration": 1604604424017,
+  "iteration": 1604605072926,
   "links": [],
   "panels": [
     {
@@ -170,8 +170,9 @@
       },
       "yaxes": [
         {
-          "format": "s",
-          "label": null,
+          "decimals": 0,
+          "format": "short",
+          "label": "",
           "logBase": 1,
           "max": null,
           "min": null,
@@ -192,7 +193,7 @@
       }
     }
   ],
-  "refresh": "5m",
+  "refresh": false,
   "schemaVersion": 20,
   "style": "dark",
   "tags": [],
@@ -201,7 +202,6 @@
       {
         "allValue": null,
         "current": {
-          "tags": [],
           "text": "canvas-prod-prod",
           "value": "canvas-prod-prod"
         },
@@ -212,90 +212,9 @@
         "label": "Service",
         "multi": false,
         "name": "service",
-        "options": [
-          {
-            "selected": false,
-            "text": "admissions-cohort-manager-prod-prod",
-            "value": "admissions-cohort-manager-prod-prod"
-          },
-          {
-            "selected": true,
-            "text": "canvas-prod-prod",
-            "value": "canvas-prod-prod"
-          },
-          {
-            "selected": false,
-            "text": "coda-prod-prod",
-            "value": "coda-prod-prod"
-          },
-          {
-            "selected": false,
-            "text": "course-roster-prod-prod",
-            "value": "course-roster-prod-prod"
-          },
-          {
-            "selected": false,
-            "text": "course-users-prod-prod",
-            "value": "course-users-prod-prod"
-          },
-          {
-            "selected": false,
-            "text": "eventcal-prod-prod",
-            "value": "eventcal-prod-prod"
-          },
-          {
-            "selected": false,
-            "text": "gradepage-prod-prod",
-            "value": "gradepage-prod-prod"
-          },
-          {
-            "selected": false,
-            "text": "grading-standards-prod-prod",
-            "value": "grading-standards-prod-prod"
-          },
-          {
-            "selected": false,
-            "text": "infohub-prod-prod",
-            "value": "infohub-prod-prod"
-          },
-          {
-            "selected": false,
-            "text": "libguides-prod-prod",
-            "value": "libguides-prod-prod"
-          },
-          {
-            "selected": false,
-            "text": "myuw-prod-prod",
-            "value": "myuw-prod-prod"
-          },
-          {
-            "selected": false,
-            "text": "notify-prod-prod",
-            "value": "notify-prod-prod"
-          },
-          {
-            "selected": false,
-            "text": "pivot-prod-prod",
-            "value": "pivot-prod-prod"
-          },
-          {
-            "selected": false,
-            "text": "prereqmap-prod-prod",
-            "value": "prereqmap-prod-prod"
-          },
-          {
-            "selected": false,
-            "text": "prt-prod-prod",
-            "value": "prt-prod-prod"
-          },
-          {
-            "selected": false,
-            "text": "retention-dashboard-prod-prod",
-            "value": "retention-dashboard-prod-prod"
-          }
-        ],
+        "options": [],
         "query": "label_values(kube_deployment_labels{namespace=\"default\",deployment=~\".*-prod$\"}, deployment)",
-        "refresh": 0,
+        "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
         "sort": 0,
@@ -308,7 +227,6 @@
       {
         "allValue": null,
         "current": {
-          "tags": [],
           "text": "All",
           "value": "$__all"
         },
@@ -334,7 +252,7 @@
     ]
   },
   "time": {
-    "from": "now-3h",
+    "from": "now-6h",
     "to": "now"
   },
   "timepicker": {
@@ -354,5 +272,5 @@
   "timezone": "",
   "title": "Cronjob Status",
   "uid": "5o09Lo2Mk",
-  "version": 4
+  "version": 6
 }

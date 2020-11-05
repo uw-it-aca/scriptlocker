@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 31,
-  "iteration": 1604594673262,
+  "id": 33,
+  "iteration": 1604602835857,
   "links": [],
   "panels": [
     {
@@ -86,7 +86,7 @@
       },
       "yaxes": [
         {
-          "format": "short",
+          "format": "s",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -292,9 +292,8 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
-          "text": "canvas-prod-test-daemon",
-          "value": "canvas-prod-test-daemon"
+          "text": "canvas-prod-prod-daemon",
+          "value": "canvas-prod-prod-daemon"
         },
         "datasource": "prometheus",
         "definition": "label_values(kube_service_info{service=~\".*-daemon\"}, service)",
@@ -303,15 +302,9 @@
         "label": "Service",
         "multi": false,
         "name": "service",
-        "options": [
-          {
-            "selected": true,
-            "text": "canvas-prod-test-daemon",
-            "value": "canvas-prod-test-daemon"
-          }
-        ],
+        "options": [],
         "query": "label_values(kube_service_info{service=~\".*-daemon\"}, service)",
-        "refresh": 0,
+        "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
         "sort": 0,
@@ -324,7 +317,6 @@
       {
         "allValue": "",
         "current": {
-          "selected": true,
           "tags": [],
           "text": "All",
           "value": "$__all"
@@ -336,25 +328,9 @@
         "label": "Job",
         "multi": false,
         "name": "job",
-        "options": [
-          {
-            "selected": true,
-            "text": "All",
-            "value": "$__all"
-          },
-          {
-            "selected": false,
-            "text": "monitor_imports",
-            "value": "monitor_imports"
-          },
-          {
-            "selected": false,
-            "text": "load_person",
-            "value": "load_person"
-          }
-        ],
+        "options": [],
         "query": "label_values(management_daemon_command_exit{service=\"$service\"}, exported_job)",
-        "refresh": 0,
+        "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
         "sort": 0,
@@ -387,5 +363,5 @@
   "timezone": "",
   "title": "Management Daemon Status",
   "uid": "7EeKHthGk",
-  "version": 7
+  "version": 3
 }

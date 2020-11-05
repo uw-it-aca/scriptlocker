@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 31,
-  "iteration": 1604522728356,
+  "iteration": 1604594673262,
   "links": [],
   "panels": [
     {
@@ -29,7 +29,7 @@
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
-        "h": 9,
+        "h": 8,
         "w": 24,
         "x": 0,
         "y": 0
@@ -116,10 +116,10 @@
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
-        "h": 9,
+        "h": 8,
         "w": 24,
         "x": 0,
-        "y": 9
+        "y": 8
       },
       "id": 4,
       "legend": {
@@ -204,10 +204,10 @@
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
-        "h": 8,
+        "h": 7,
         "w": 24,
         "x": 0,
-        "y": 18
+        "y": 16
       },
       "id": 6,
       "legend": {
@@ -235,7 +235,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "irate(canvas_event_count{external_job=~\"$job\"}[5m])",
+          "expr": "irate(canvas_event_count{external_job=~\"$job\"}[1m])",
           "legendFormat": "{{ source }}",
           "refId": "A"
         }
@@ -260,11 +260,12 @@
       },
       "yaxes": [
         {
+          "decimals": null,
           "format": "short",
           "label": null,
           "logBase": 1,
           "max": null,
-          "min": null,
+          "min": "0",
           "show": true
         },
         {
@@ -282,7 +283,7 @@
       }
     }
   ],
-  "refresh": false,
+  "refresh": "5m",
   "schemaVersion": 20,
   "style": "dark",
   "tags": [],
@@ -291,7 +292,7 @@
       {
         "allValue": null,
         "current": {
-          "tags": [],
+          "selected": true,
           "text": "canvas-prod-test-daemon",
           "value": "canvas-prod-test-daemon"
         },
@@ -323,6 +324,7 @@
       {
         "allValue": "",
         "current": {
+          "selected": true,
           "tags": [],
           "text": "All",
           "value": "$__all"
@@ -385,5 +387,5 @@
   "timezone": "",
   "title": "Management Daemon Status",
   "uid": "7EeKHthGk",
-  "version": 5
+  "version": 7
 }

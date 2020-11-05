@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 33,
-  "iteration": 1604602835857,
+  "iteration": 1604602835867,
   "links": [],
   "panels": [
     {
@@ -235,7 +235,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "irate(canvas_event_count{external_job=~\"$job\"}[1m])",
+          "expr": "irate(canvas_event_count_total{service=~\"$service\"}[1m])",
           "legendFormat": "{{ source }}",
           "refId": "A"
         }
@@ -261,7 +261,7 @@
       "yaxes": [
         {
           "decimals": null,
-          "format": "short",
+          "format": "opm",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -363,5 +363,5 @@
   "timezone": "",
   "title": "Management Daemon Status",
   "uid": "7EeKHthGk",
-  "version": 3
+  "version": 5
 }

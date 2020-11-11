@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 33,
-  "iteration": 1604602835867,
+  "id": 29,
+  "iteration": 1605116990995,
   "links": [],
   "panels": [
     {
@@ -86,7 +86,7 @@
       },
       "yaxes": [
         {
-          "format": "s",
+          "format": "short",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -261,7 +261,7 @@
       "yaxes": [
         {
           "decimals": null,
-          "format": "opm",
+          "format": "short",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -292,6 +292,7 @@
       {
         "allValue": null,
         "current": {
+          "selected": true,
           "text": "canvas-prod-prod-daemon",
           "value": "canvas-prod-prod-daemon"
         },
@@ -317,9 +318,10 @@
       {
         "allValue": "",
         "current": {
+          "selected": true,
           "tags": [],
-          "text": "All",
-          "value": "$__all"
+          "text": "load_enrollments",
+          "value": "load_enrollments"
         },
         "datasource": "prometheus",
         "definition": "label_values(management_daemon_command_exit{service=\"$service\"}, exported_job)",
@@ -343,7 +345,7 @@
     ]
   },
   "time": {
-    "from": "now-1h",
+    "from": "now-3h",
     "to": "now"
   },
   "timepicker": {
@@ -363,5 +365,5 @@
   "timezone": "",
   "title": "Management Daemon Status",
   "uid": "7EeKHthGk",
-  "version": 5
+  "version": 3
 }

@@ -2,6 +2,8 @@
 # shortcuts to streamline docker and kubectl cli interaction
 #
 
+POD_LIST=/tmp/_k8s_pods
+
 # override kubectl to maintain environment
 KUBECTL_CMD=$(which kubectl)
 
@@ -58,24 +60,27 @@ kubectl_get() {
     $KUBECTL_CMD get $@
 }
 
+kubectl_describe() {
+    $KUBECTL_CMD describe $@
+}
+
 kubectl_explain() {
     $KUBECTL_CMD explain $@
 }
 
 kubectl_get_pods() {
-    export K8S_PODS=$($KUBECTL_CMD get pods | awk '{if (NR == 1){ print "    " $0 }else{ printf "%-4s%s\n", NR-1, $0 }}')
-    echo "$K8S_PODS"
+    $($KUBECTL_CMD get pods | awk '{if (NR == 1){ print "    " $0 }else{ printf "%-4s%s\n", NR-1, $0 }}' &> $POD_LIST)
+    cat $POD_LIST
 }
 
-kubectl_cmd_on_pod_index() {
-    POD_INDEX=$1; shift
+kubectl_cmd_on_line_number() {
+    LINE_NUMBER=$1; shift
     CMD=$1; shift
-    ((POD_INDEX+=1))
-    if [[ -z "${K8S_PODS}" ]]; then
+    if [[ ! -s $POD_LIST ]]; then
         kubectl_get_pods
         k8s_prompt "Sorry, what was that number?"
     else
-        K8S_NEW_POD=$(echo "$K8S_PODS" | sed "${POD_INDEX}q;d" | awk '{print $2}')
+        K8S_NEW_POD=$(awk "/^${LINE_NUMBER} /{print \$2}" $POD_LIST)
         $CMD $K8S_NEW_POD $@
     fi
 }
@@ -84,7 +89,7 @@ kubectl_get_pod() {
     case $1 in
       [0-9]|[0-9][0-9]|[0-9][0-9][0-9])
         LINE_NUMBER=$1; shift
-        kubectl_cmd_on_pod_index $LINE_NUMBER kubectl_get_pod $@
+        kubectl_cmd_on_line_number $LINE_NUMBER kubectl_get_pod $@
         ;;
       '')
         kubectl_get_pods
@@ -99,7 +104,7 @@ kubectl_log() {
     case $1 in
       [0-9]|[0-9][0-9]|[0-9][0-9][0-9])
         LINE_NUMBER=$1; shift
-        kubectl_cmd_on_pod_index $LINE_NUMBER kubectl_log $@
+        kubectl_cmd_on_line_number $LINE_NUMBER kubectl_log $@
         ;;
       "")
         kubectl_get_pods
@@ -115,7 +120,7 @@ kubectl_shell() {
     case $1 in
       [0-9]|[0-9][0-9]|[0-9][0-9][0-9])
         LINE_NUMBER=$1; shift
-        kubectl_cmd_on_pod_index $LINE_NUMBER kubectl_shell
+        kubectl_cmd_on_line_number $LINE_NUMBER kubectl_shell
         ;;
       "")
         kubectl_get_pods
@@ -192,6 +197,8 @@ shorthand aliases:
     dls   = docker image ls
     dkill = docker kill <arg>
     dsh   = docker exec -it <arg> bash
+    k     = kubectl <arg list>
+    kd    = kubectl describe <arg lists>
     kex   = kubectl explain <arg list>
     kg    = kubectl get <arg lists>
     kgp   = kubectl get pod [<arg>]
@@ -225,7 +232,9 @@ alias dls=docker_image_ls
 alias dkill=docker_kill
 alias dsh=docker_shell
 alias drmi=docker_rmi
+alias k=kubectl_cmd
 alias kex=kubectl_explain
+alias kd=kubectl_describe
 alias kg=kubectl_get
 alias kgp=kubectl_get_pod
 alias ksh=kubectl_shell

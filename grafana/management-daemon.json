@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 29,
-  "iteration": 1605116990995,
+  "id": 30,
+  "iteration": 1605719131965,
   "links": [],
   "panels": [
     {
@@ -86,7 +86,7 @@
       },
       "yaxes": [
         {
-          "format": "short",
+          "format": "s",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -261,7 +261,7 @@
       "yaxes": [
         {
           "decimals": null,
-          "format": "short",
+          "format": "rps",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -318,10 +318,9 @@
       {
         "allValue": "",
         "current": {
-          "selected": true,
-          "tags": [],
-          "text": "load_enrollments",
-          "value": "load_enrollments"
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
         },
         "datasource": "prometheus",
         "definition": "label_values(management_daemon_command_exit{service=\"$service\"}, exported_job)",
@@ -365,5 +364,5 @@
   "timezone": "",
   "title": "Management Daemon Status",
   "uid": "7EeKHthGk",
-  "version": 3
+  "version": 2
 }

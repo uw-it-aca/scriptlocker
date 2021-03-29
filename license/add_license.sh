@@ -16,6 +16,13 @@ if [ -z "${appdir}" ]; then
     usage
 fi
 
-find ${appdir} -type f -size +0 -name "*.py" -exec sh -c "perl -pi -e 'print \"\
-# Copyright $(date +%Y) UW-IT, University of Washington\n\
-# SPDX-License-Identifier: ${license}\n\n\" if $. == 1' {}" \;
+copyright="# Copyright $(date +'%Y') UW-IT, University of Washington"
+identifier="# SPDX-License-Identifier: ${license}"
+export copyright
+export identifier
+
+for i in $(find ${appdir} -type f -size +0 -name "*.py" -exec grep -PzL "$copyright\n$identifier" {} \;);
+do
+    perl -pi -e 'print "$ENV{copyright}\n$ENV{identifier}\n\n" if $. == 1' $i
+    echo "$i"
+done

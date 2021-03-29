@@ -16,6 +16,7 @@ if [ -z "${appdir}" ]; then
     usage
 fi
 
-find ${appdir} -type f -size +0 -name "*.py" -exec grep -PzL "\
-# Copyright $(date +'%Y') UW-IT, University of Washington\n\
-# SPDX-License-Identifier: ${license}" {} \;
+copyright="# Copyright $(date +'%Y') UW-IT, University of Washington"
+identifier="# SPDX-License-Identifier: ${license}"
+
+find ${appdir} -type f -size +0 -name "*.py" -exec grep -PzL "$copyright\n$identifier" {} \;

@@ -19,4 +19,4 @@ fi
 copyright="# Copyright $(date +'%Y') UW-IT, University of Washington"
 identifier="# SPDX-License-Identifier: ${license}"
 
-find ${appdir} -type f -size +0 -name "*.py" -exec grep -PzL "$copyright\n$identifier" {} \;
+find ${appdir} -type f -size +0 -not -path "*/migrations/*" -name "*.py" -exec grep -PzL "$copyright\n$identifier" {} \;

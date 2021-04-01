@@ -21,7 +21,7 @@ identifier="# SPDX-License-Identifier: ${license}"
 export copyright
 export identifier
 
-for i in $(find ${appdir} -type f -size +0 -name "*.py" -exec grep -PzL "$copyright\n$identifier" {} \;);
+for i in $(find ${appdir} -type f -size +0 -not -path "*/migrations/*" -name "*.py" -exec grep -PzL "$copyright\n$identifier" {} \;);
 do
     perl -pi -e 'print "$ENV{copyright}\n$ENV{identifier}\n\n" if $. == 1' $i
     echo "$i"

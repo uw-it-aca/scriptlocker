@@ -24,6 +24,5 @@ export identifier
 for i in $(find ${appdir} -type f -size +0 -name "*.py" -exec grep -Pzl "$copyright\n$identifier" {} \;);
 do
     perl -pi -e 'BEGIN{undef $/;} s/$ENV{copyright}\n$ENV{identifier}\n\n//smg' $i
-    #perl -pi -e 'print "$ENV{copyright}\n$ENV{identifier}\n\n" if $. == 1' $i
     echo "$i"
 done

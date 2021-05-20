@@ -15,8 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 31,
-  "iteration": 1620931162672,
+  "iteration": 1621434755784,
   "links": [],
   "panels": [
     {
@@ -65,9 +64,9 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(rate(message_sent_count_total{service=\"linkbot-prod-test\",channel=~\"$channel\"}[1m]))",
+          "expr": "sum(rate(message_sent_count_total{service=\"linkbot-prod-dev\",channel=~\"$channel\"}[1m]))",
           "interval": "",
-          "legendFormat": "",
+          "legendFormat": "#$channel",
           "refId": "A"
         }
       ],
@@ -91,6 +90,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:66",
           "format": "short",
           "label": "messages/min",
           "logBase": 1,
@@ -99,6 +99,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:67",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -122,26 +123,22 @@
       {
         "allValue": null,
         "current": {
-          "selected": false,
-          "text": "C0TRAE9U2",
-          "value": "C0TRAE9U2"
+          "selected": true,
+          "text": "mikes-test",
+          "value": [
+            "mikes-test"
+          ]
         },
         "datasource": "prometheus",
-        "definition": "label_values(message_sent_count_total{service=\"linkbot-prod-test\"}, channel)",
+        "definition": "label_values(message_sent_count_total{service=\"linkbot-prod-dev\"}, channel)",
         "hide": 0,
-        "includeAll": false,
+        "includeAll": true,
         "label": "Channel",
-        "multi": false,
+        "multi": true,
         "name": "channel",
-        "options": [
-          {
-            "selected": true,
-            "text": "C0TRAE9U2",
-            "value": "C0TRAE9U2"
-          }
-        ],
-        "query": "label_values(message_sent_count_total{service=\"linkbot-prod-test\"}, channel)",
-        "refresh": 0,
+        "options": [],
+        "query": "label_values(message_sent_count_total{service=\"linkbot-prod-dev\"}, channel)",
+        "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
         "sort": 0,
@@ -154,7 +151,7 @@
     ]
   },
   "time": {
-    "from": "now-12h",
+    "from": "now-3h",
     "to": "now"
   },
   "timepicker": {
@@ -173,5 +170,5 @@
   "timezone": "",
   "title": "LinkBot Message Rate",
   "uid": "jXEMrYjGk",
-  "version": 4
+  "version": 2
 }

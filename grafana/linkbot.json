@@ -15,7 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "iteration": 1621434755784,
+  "iteration": 1621894357468,
   "links": [],
   "panels": [
     {
@@ -64,7 +64,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(rate(message_sent_count_total{service=\"linkbot-prod-dev\",channel=~\"$channel\"}[1m]))",
+          "expr": "sum(rate(message_sent_count_total{service=~\"linkbot-prod-(prod|dev)\",channel=~\"$channel\"}[1m]))",
           "interval": "",
           "legendFormat": "#$channel",
           "refId": "A"
@@ -124,20 +124,20 @@
         "allValue": null,
         "current": {
           "selected": true,
-          "text": "mikes-test",
+          "text": "All",
           "value": [
-            "mikes-test"
+            "$__all"
           ]
         },
         "datasource": "prometheus",
-        "definition": "label_values(message_sent_count_total{service=\"linkbot-prod-dev\"}, channel)",
+        "definition": "label_values(message_sent_count_total{service=~\"linkbot-prod-(prod|dev)\"}, channel)",
         "hide": 0,
         "includeAll": true,
         "label": "Channel",
         "multi": true,
         "name": "channel",
         "options": [],
-        "query": "label_values(message_sent_count_total{service=\"linkbot-prod-dev\"}, channel)",
+        "query": "label_values(message_sent_count_total{service=~\"linkbot-prod-(prod|dev)\"}, channel)",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -151,7 +151,7 @@
     ]
   },
   "time": {
-    "from": "now-3h",
+    "from": "now-1h",
     "to": "now"
   },
   "timepicker": {
@@ -170,5 +170,5 @@
   "timezone": "",
   "title": "LinkBot Message Rate",
   "uid": "jXEMrYjGk",
-  "version": 2
+  "version": 1
 }

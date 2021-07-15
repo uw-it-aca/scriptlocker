@@ -15,8 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 34,
-  "iteration": 1604605072926,
+  "iteration": 1626384977569,
   "links": [],
   "panels": [
     {
@@ -25,6 +24,13 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "links": []
+        },
+        "overrides": []
+      },
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -33,6 +39,7 @@
         "x": 0,
         "y": 0
       },
+      "hiddenSeries": false,
       "id": 2,
       "legend": {
         "avg": false,
@@ -47,9 +54,10 @@
       "linewidth": 1,
       "nullPointMode": "null",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
+      "pluginVersion": "7.3.4",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -111,6 +119,13 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "links": []
+        },
+        "overrides": []
+      },
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -119,6 +134,7 @@
         "x": 0,
         "y": 11
       },
+      "hiddenSeries": false,
       "id": 3,
       "legend": {
         "avg": false,
@@ -133,9 +149,10 @@
       "linewidth": 1,
       "nullPointMode": "null",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
+      "pluginVersion": "7.3.4",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -193,8 +210,8 @@
       }
     }
   ],
-  "refresh": false,
-  "schemaVersion": 20,
+  "refresh": "5m",
+  "schemaVersion": 26,
   "style": "dark",
   "tags": [],
   "templating": {
@@ -202,18 +219,20 @@
       {
         "allValue": null,
         "current": {
+          "selected": true,
           "text": "canvas-prod-prod",
           "value": "canvas-prod-prod"
         },
         "datasource": "prometheus",
-        "definition": "label_values(kube_deployment_labels{namespace=\"default\",deployment=~\".*-prod$\"}, deployment)",
+        "definition": "label_values(management_command_exit{namespace=\"default\", exported_instance=~\".*-prod$\"}, exported_instance)",
+        "error": null,
         "hide": 0,
         "includeAll": false,
         "label": "Service",
         "multi": false,
         "name": "service",
         "options": [],
-        "query": "label_values(kube_deployment_labels{namespace=\"default\",deployment=~\".*-prod$\"}, deployment)",
+        "query": "label_values(management_command_exit{namespace=\"default\", exported_instance=~\".*-prod$\"}, exported_instance)",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
@@ -227,11 +246,13 @@
       {
         "allValue": null,
         "current": {
+          "selected": false,
           "text": "All",
           "value": "$__all"
         },
         "datasource": "prometheus",
         "definition": "label_values(management_command_duration{exported_instance=\"$service\"}, exported_job)",
+        "error": null,
         "hide": 0,
         "includeAll": true,
         "label": "Job",
@@ -252,7 +273,7 @@
     ]
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-24h",
     "to": "now"
   },
   "timepicker": {
@@ -272,5 +293,5 @@
   "timezone": "",
   "title": "Cronjob Status",
   "uid": "5o09Lo2Mk",
-  "version": 6
+  "version": 1
 }

@@ -15,7 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "iteration": 1623252252193,
+  "iteration": 1636135857294,
   "links": [],
   "panels": [
     {
@@ -26,7 +26,6 @@
       "datasource": "prometheus",
       "fieldConfig": {
         "defaults": {
-          "custom": {},
           "links": []
         },
         "overrides": []
@@ -53,8 +52,11 @@
       "lines": true,
       "linewidth": 1,
       "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
       "percentage": false,
-      "pluginVersion": "7.1.0",
+      "pluginVersion": "7.5.4",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -64,7 +66,8 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(irate(restclient_response_status_code_count{service=\"$service\"}[1m])) by (exported_service)",
+          "exemplar": true,
+          "expr": "sum(irate(restclient_response_status_code_count{service=\"$service\",exported_job=\"$exported_job\"}[1m])) by (exported_service)",
           "interval": "",
           "legendFormat": "{{exported_service}}",
           "refId": "B"
@@ -129,9 +132,7 @@
       "dataFormat": "timeseries",
       "datasource": "prometheus",
       "fieldConfig": {
-        "defaults": {
-          "custom": {}
-        },
+        "defaults": {},
         "overrides": []
       },
       "gridPos": {
@@ -150,7 +151,9 @@
       "reverseYBuckets": false,
       "targets": [
         {
-          "expr": "histogram_quantile(1.0, sum(irate(restclient_request_duration_seconds_bucket{service=\"$service\",exported_service=\"$exported_service\"}[1m])) by (le))",
+          "exemplar": true,
+          "expr": "histogram_quantile(1.0, sum(irate(restclient_request_duration_seconds_bucket{service=\"$service\",exported_job=\"$exported_job\",exported_service=\"$exported_service\"}[1m])) by (le))",
+          "interval": "",
           "legendFormat": "$exported_service",
           "refId": "A"
         }
@@ -173,7 +176,7 @@
         "format": "short",
         "logBase": 1,
         "max": null,
-        "min": null,
+        "min": "0",
         "show": true,
         "splitFactor": null
       },
@@ -195,7 +198,6 @@
       "datasource": "prometheus",
       "fieldConfig": {
         "defaults": {
-          "custom": {},
           "links": []
         },
         "overrides": []
@@ -223,8 +225,11 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
       "percentage": false,
-      "pluginVersion": "7.1.0",
+      "pluginVersion": "7.5.4",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -234,27 +239,37 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(rate(restclient_response_status_code_bucket{exported_service=\"$exported_service\",job=\"$service\",le=\"100.0\"}[10m]))",
+          "exemplar": true,
+          "expr": "sum(rate(restclient_response_status_code_bucket{exported_service=\"$exported_service\",exported_job=\"$exported_job\",service=\"$service\",le=~\"100(.0)?\"}[1m]))",
+          "interval": "",
           "legendFormat": "100",
           "refId": "E"
         },
         {
-          "expr": "sum(rate(restclient_response_status_code_bucket{exported_service=\"$exported_service\",job=\"$service\",le=\"200.0\"}[10m])) - sum(rate(restclient_response_status_code_bucket{exported_service=\"$exported_service\",job=\"$service\",le=\"100.0\"}[10m]))",
+          "exemplar": true,
+          "expr": "sum(rate(restclient_response_status_code_bucket{exported_service=\"$exported_service\",exported_job=\"$exported_job\",service=\"$service\",le=~\"200(.0)?\"}[1m])) - sum(rate(restclient_response_status_code_bucket{exported_service=\"$exported_service\",exported_job=\"$exported_job\",service=\"$service\",le=~\"100(.0)?\"}[1m]))",
+          "interval": "",
           "legendFormat": "200",
           "refId": "C"
         },
         {
-          "expr": "sum(rate(restclient_response_status_code_bucket{exported_service=\"$exported_service\",job=\"$service\",le=\"300.0\"}[10m])) - sum(rate(restclient_response_status_code_bucket{exported_service=\"$exported_service\",job=\"$service\",le=\"200.0\"}[10m]))",
+          "exemplar": true,
+          "expr": "sum(rate(restclient_response_status_code_bucket{exported_service=\"$exported_service\",exported_job=\"$exported_job\",service=\"$service\",le=~\"300(.0)?\"}[1m])) - sum(rate(restclient_response_status_code_bucket{exported_service=\"$exported_service\",exported_job=\"$exported_job\",service=\"$service\",le=~\"200(.0)?\"}[1m]))",
+          "interval": "",
           "legendFormat": "300",
           "refId": "A"
         },
         {
-          "expr": "sum(rate(restclient_response_status_code_bucket{exported_service=\"$exported_service\",job=\"$service\",le=\"400.0\"}[10m])) - sum(rate(restclient_response_status_code_bucket{exported_service=\"$exported_service\",job=\"$service\",le=\"300.0\"}[10m]))",
+          "exemplar": true,
+          "expr": "sum(rate(restclient_response_status_code_bucket{exported_service=\"$exported_service\",exported_job=\"$exported_job\",service=\"$service\",le=~\"400(.0)?\"}[1m])) - sum(rate(restclient_response_status_code_bucket{exported_service=\"$exported_service\",exported_job=\"$exported_job\",service=\"$service\",le=~\"300(.0)?\"}[1m]))",
+          "interval": "",
           "legendFormat": "400",
           "refId": "B"
         },
         {
-          "expr": "sum(rate(restclient_response_status_code_bucket{exported_service=\"$exported_service\",job=\"$service\",le=\"500.0\"}[10m])) - sum(rate(restclient_response_status_code_bucket{exported_service=\"$exported_service\",job=\"$service\",le=\"400.0\"}[10m]))",
+          "exemplar": true,
+          "expr": "sum(rate(restclient_response_status_code_bucket{exported_service=\"$exported_service\",exported_job=\"$exported_job\",service=\"$service\",le=~\"500(.0)?\"}[1m])) - sum(rate(restclient_response_status_code_bucket{exported_service=\"$exported_service\",exported_job=\"$exported_job\",service=\"$service\",le=~\"400(.0)?\"}[1m]))",
+          "interval": "",
           "legendFormat": "500",
           "refId": "D"
         }
@@ -279,6 +294,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:119",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -287,6 +303,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:120",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -308,7 +325,6 @@
       "datasource": "prometheus",
       "fieldConfig": {
         "defaults": {
-          "custom": {},
           "links": []
         },
         "overrides": []
@@ -335,8 +351,11 @@
       "lines": false,
       "linewidth": 1,
       "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
       "percentage": false,
-      "pluginVersion": "7.1.0",
+      "pluginVersion": "7.5.4",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -346,7 +365,8 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(restclient_request_timeout_total{service=\"$service\"}) by (exported_service)",
+          "exemplar": true,
+          "expr": "sum(restclient_request_timeout_total{service=\"$service\",exported_job=\"$exported_job\"}) by (exported_service)",
           "interval": "",
           "legendFormat": "{{exported_service}}",
           "refId": "A"
@@ -372,6 +392,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:655",
           "decimals": 0,
           "format": "short",
           "label": null,
@@ -381,6 +402,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:656",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -396,7 +418,7 @@
     }
   ],
   "refresh": "5m",
-  "schemaVersion": 26,
+  "schemaVersion": 27,
   "style": "dark",
   "tags": [],
   "templating": {
@@ -405,18 +427,23 @@
         "allValue": null,
         "current": {
           "selected": true,
-          "text": "myuw-prod-prod",
-          "value": "myuw-prod-prod"
+          "text": "coda-prod-prod",
+          "value": "coda-prod-prod"
         },
         "datasource": "prometheus",
         "definition": "label_values(kube_deployment_labels{namespace=\"default\"}, deployment)",
+        "description": null,
+        "error": null,
         "hide": 0,
         "includeAll": false,
         "label": "Service",
         "multi": false,
         "name": "service",
         "options": [],
-        "query": "label_values(kube_deployment_labels{namespace=\"default\"}, deployment)",
+        "query": {
+          "query": "label_values(kube_deployment_labels{namespace=\"default\"}, deployment)",
+          "refId": "StandardVariableQuery"
+        },
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
@@ -430,20 +457,57 @@
       {
         "allValue": null,
         "current": {
+          "isNone": true,
           "selected": true,
+          "text": "None",
+          "value": ""
+        },
+        "datasource": "prometheus",
+        "definition": "label_values(restclient_response_status_code_count{service=~\"$service\"}, exported_job)",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": "Cronjob",
+        "multi": false,
+        "name": "exported_job",
+        "options": [],
+        "query": {
+          "query": "label_values(restclient_response_status_code_count{service=~\"$service\"}, exported_job)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": false,
           "text": "pws",
           "value": "pws"
         },
         "datasource": "prometheus",
-        "definition": "label_values(restclient_request_duration_seconds_bucket{service=\"$service\"}, exported_service)",
+        "definition": "label_values(restclient_request_duration_seconds_bucket{service=\"$service\",exported_job=\"$exported_job\"}, exported_service)",
+        "description": null,
+        "error": null,
         "hide": 0,
         "includeAll": false,
         "label": "Restclient",
         "multi": false,
         "name": "exported_service",
         "options": [],
-        "query": "label_values(restclient_request_duration_seconds_bucket{service=\"$service\"}, exported_service)",
-        "refresh": 1,
+        "query": {
+          "query": "label_values(restclient_request_duration_seconds_bucket{service=\"$service\",exported_job=\"$exported_job\"}, exported_service)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
         "sort": 0,
@@ -456,7 +520,7 @@
     ]
   },
   "time": {
-    "from": "now-3h",
+    "from": "now-12h",
     "to": "now"
   },
   "timepicker": {

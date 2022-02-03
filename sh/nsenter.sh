@@ -23,7 +23,8 @@ podName=${podName//./-}
 # truncate podName to 63 characters which is the kubernetes max length for it
 podName=${podName:0:63}
 
-echo "With great power comes great responsibility"
+echo "  Creating pod ${podName} on node ${nodeName}"
+echo "  With great power comes great responsibility"
 
 kubectl run ${podName:?} --restart=Never -it --rm --image overriden --overrides '
 {

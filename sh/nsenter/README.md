@@ -1,4 +1,4 @@
-*# nsenter.sh
+## nsenter.sh
 
 Get a shell with root privileges on specified Kubernetes node.
 

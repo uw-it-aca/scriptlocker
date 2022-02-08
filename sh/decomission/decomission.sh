@@ -15,11 +15,16 @@ function setup_environment () {
     VALUES_FILE=$1
     VALUES_FILE_BASE=$(basename $1)
     APP_INSTANCE=$(echo $VALUES_FILE_BASE | sed -E 's/(test|prod)-values.y[a]?ml/\1/g')
-    RELEASE_NAME=$(yq '.repo' $VALUES_FILE | sed -e 's/^"//' -e 's/"$//')-prod-${APP_INSTANCE}
+    APP_NAME=$(yq '.repo' $VALUES_FILE | sed -e 's/^"//' -e 's/"$//')
+    RELEASE_NAME=${APP_NAME}-prod-${APP_INSTANCE}
     if [ "$APP_INSTANCE" = "prod" ]; then
       GCP_PROJECT="0011"
+      FLUX_INSTANCE="prod"
+      GIT_BRANCH="main"
     elif [ "$APP_INSTANCE" = "test" ]; then
       GCP_PROJECT="0010"
+      FLUX_INSTANCE="dev"
+      GIT_BRANCH="develop"
     else
       echo "Cannot map values file ${APP_INSTANCE} to GCP project"
       exit 1
@@ -41,10 +46,19 @@ function setup_environment () {
   fi
 }
 
+function flux_cleanup () {
+  echo "# ---"
+  echo "# Remove the application's deployment from the flux repository:"
+  echo "#"
+  echo "#     1. cut a branch off https://github.com/uw-it-aca/gcp-flux-${FLUX_INSTANCE}"
+  echo "#     2. on branch, delete releases/${FLUX_INSTANCE}/${APP_NAME}.yaml"
+  echo "#     3. merge branch to master"
+  echo "#"
+}
 
 function resource_cleanup () {
   echo "# ---"
-  echo "# The following commands will remove cluster resources:"
+  echo "# Delete the applciation's cluster resources:"
   echo "#"
   for API in $(kubectl api-resources --verbs=delete --namespaced -o name); do
     OBJECTS=$(kubectl get --show-kind --ignore-not-found -l ${RELEASE_LABEL} -n $RELEASE_NAMESPACE $API 2> /dev/null)
@@ -131,10 +145,12 @@ function disable_github_workflow () {
   if [[ -d $WORKFLOW_DIR ]]; then
     echo "# ---"
     echo "# Disable the github workflows in $WORKFLOW_DIR."
-    echo "#"
     while IFS= read -r line; do
       workflow=$(echo $line | sed -e 's/^"//' -e 's/"$//')
-      echo "#     edit $workflow and rename the \"on:\" trigger to \"neveron:\""
+      echo "#"
+      echo "#        1. checkout ${GIT_BRANCH} branch"
+      echo "#        2. edit $workflow ot rename the \"on:\" trigger to \"neveron:\""
+      echo "#        3. commit/push ${GIT_BRANCH} branch"
       echo "#"
     done <<< "$(echo .github/workflows/*)"
   fi
@@ -169,6 +185,7 @@ echo "#            into bash will result in the deletion of"
 echo "#            ALL kubernetes resources associated $RELEASE_NAME."
 echo "#"
 
+flux_cleanup
 resource_cleanup
 ingress_cleanup
 database_cleanup

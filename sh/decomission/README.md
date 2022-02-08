@@ -4,7 +4,7 @@ Produced a recipe for decomissioning an AXDD application.
 
 Usage: <code>decommision *helm-values-yaml-file*</code>
 
-When run from the root of the cloned app reposository and provided
+When run from the root of the cloned app repository and provided
 an application's helm values, produces instructions for removing
 kubernetes resources associated with the application as well as
 pointers to external dependencies and resources.

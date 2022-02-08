@@ -14,9 +14,11 @@ and provides steps neccessary for decommisioning.  It does not remove
 or modify any resources, repositories or dependencies.
 
 However, the script output is suitable for piping into bash which will
-result in the deletion of all resources associated 
+result in the deletion of all associated kubernetes resources.
 
-Dependencies are that suitable credentials configured for the various
-pieces of application infrastructure and that the current kubernetes
-context matches the deployment context expressed by the provided helm
-values file.  Oh, and the script also requires that yq is installed.
+Script dependencies require that suitable credentials are configured
+for the various pieces of application infrastructure and that the
+current kubernetes context matches the deployment context expressed
+by the provided helm values file.
+
+Oh, and the script also requires that yq is installed.

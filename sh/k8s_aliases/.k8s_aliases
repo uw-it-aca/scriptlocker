@@ -195,7 +195,7 @@ cat<<EOF
 shorthand aliases:
     dps   = docker ps
     dls   = docker image ls
-    dkill = docker kill <arg>
+    dk    = docker kill <arg>
     dsh   = docker exec -it <arg> bash
     k     = kubectl <arg list>
     kd    = kubectl describe <arg lists>
@@ -226,12 +226,8 @@ EOF
 # set prompt
 kubectl_config > /dev/null
 
+alias kh=kubectl_help
 alias kubectl=kubectl_cmd
-alias dps=docker_ps
-alias dls=docker_image_ls
-alias dkill=docker_kill
-alias dsh=docker_shell
-alias drmi=docker_rmi
 alias k=kubectl_cmd
 alias kex=kubectl_explain
 alias kd=kubectl_describe
@@ -240,4 +236,8 @@ alias kgp=kubectl_get_pod
 alias ksh=kubectl_shell
 alias kl=kubectl_log
 alias kcfg=kubectl_config
-alias kh=kubectl_help
+alias dps=docker_ps
+alias dls=docker_image_ls
+alias dk=docker_kill
+alias dsh=docker_shell
+alias drmi=docker_rmi

@@ -4,7 +4,6 @@ To install, copy this file to your home directory and add the line ". .k8s_alias
 
 | Alias | Result | Explanation/Example |
 | --- | --- | --- |
-| <code>dc</code> | <code>docker-compose<code> | |
 | <code>dcu</code> | <code>docker-compose up --build</code> | |
 | <code>dr</code> | <code>docker-compose down && docker-compose up --build</code> | Restarts docker container |
 | <code>dx</code> | <code>docker exec -ti</code> | |

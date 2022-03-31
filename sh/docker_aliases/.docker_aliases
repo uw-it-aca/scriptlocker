@@ -3,7 +3,6 @@
 #
 
 # docker aliases
-alias dc='docker-compose'
 alias dcu='docker-compose up --build'
 alias dr='docker-compose down && docker-compose up --build'
 alias dx='docker exec -ti'

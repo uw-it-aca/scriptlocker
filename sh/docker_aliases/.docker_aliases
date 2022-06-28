@@ -11,6 +11,10 @@ alias dx='docker exec -ti'
 dxm() {
   container=$1
   shift
-  docker exec -ti $container bin/python manage.py $@
+  
+  IFS=',' read -ra commands << "$@"
+  for command in "${commands[@]}"; do
+    docker exec -ti $container bin/python manage.py $command
+  done
 }
 

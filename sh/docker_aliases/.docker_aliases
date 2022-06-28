@@ -7,6 +7,8 @@ alias dcu='docker-compose up --build'
 alias dr='docker-compose down && docker-compose up --build'
 alias dx='docker exec -ti'
 
+complete -W "`docker container ps --format '{{.Names}}'`" dxm || echo "bash-completion not installed"
+
 # docker functions
 dxm() {
   container=$1

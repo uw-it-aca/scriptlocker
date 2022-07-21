@@ -49,11 +49,11 @@ docker_rmi() {
 }
 
 docker_shell() {
-    docker exec -it $1 /bin/bash
+    docker exec -it $1 -- /bin/bash
 }
 
 docker_run_shell() {
-    docker run -it $1 /bin/bash
+    docker run -it $1 -- /bin/bash
 }
 
 kubectl_get() {
@@ -100,6 +100,10 @@ kubectl_get_pod() {
     esac
 }
 
+kubectl_get_pod_grep() {
+    kubectl_get_pods | grep $@
+}
+
 kubectl_log() {
     case $1 in
       [0-9]|[0-9][0-9]|[0-9][0-9][0-9])
@@ -120,14 +124,14 @@ kubectl_shell() {
     case $1 in
       [0-9]|[0-9][0-9]|[0-9][0-9][0-9])
         LINE_NUMBER=$1; shift
-        kubectl_cmd_on_line_number $LINE_NUMBER kubectl_shell
+        kubectl_cmd_on_line_number $LINE_NUMBER kubectl_shell "$@"
         ;;
       "")
         kubectl_get_pods
         k8s_prompt "Which pod would you like a shell?"
         ;;
       *)
-        $KUBECTL_CMD exec -it $1 -- bash
+        $KUBECTL_CMD exec -it "$@" -- bash
         ;;
     esac
 }
@@ -195,7 +199,7 @@ cat<<EOF
 shorthand aliases:
     dps   = docker ps
     dls   = docker image ls
-    dk    = docker kill <arg>
+    dkill = docker kill <arg>
     dsh   = docker exec -it <arg> bash
     k     = kubectl <arg list>
     kd    = kubectl describe <arg lists>
@@ -204,6 +208,8 @@ shorthand aliases:
     kgp   = kubectl get pod [<arg>]
             no <arg> lists pods
             <arg> can be pod id or index of listed pods
+    kgpg  = kubectl get pod | grep <arg>
+            <arg> is pod names to match
     ksh   = kubectl exec -it <arg>
             no <arg> lists pods
             <arg> can be pod id or index of listed pods
@@ -226,18 +232,19 @@ EOF
 # set prompt
 kubectl_config > /dev/null
 
-alias kh=kubectl_help
 alias kubectl=kubectl_cmd
+alias dps=docker_ps
+alias dls=docker_image_ls
+alias dkill=docker_kill
+alias dsh=docker_shell
+alias drmi=docker_rmi
 alias k=kubectl_cmd
 alias kex=kubectl_explain
 alias kd=kubectl_describe
 alias kg=kubectl_get
 alias kgp=kubectl_get_pod
+alias kgpg=kubectl_get_pod_grep
 alias ksh=kubectl_shell
 alias kl=kubectl_log
 alias kcfg=kubectl_config
-alias dps=docker_ps
-alias dls=docker_image_ls
-alias dk=docker_kill
-alias dsh=docker_shell
-alias drmi=docker_rmi
+alias kh=kubectl_help

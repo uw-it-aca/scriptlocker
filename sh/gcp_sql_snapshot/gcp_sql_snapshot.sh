@@ -16,7 +16,7 @@ GCP_BUCKET=$(echo $1); shift
 
 DATESTAMP=$(date '+%Y-%m-%d')
 EXPORT_BUCKET=gs://${GCP_BUCKET}/${SOURCE_DB}-db-export-${DATESTAMP}.sql
-IMPORT_BUCKET=gs://${GCP_BUCKET}/${DESTINATION_DB}-db-test-import-${DATESTAMP}.sql
+IMPORT_BUCKET=gs://${GCP_BUCKET}/${DESTINATION_DB}-db-import-${DATESTAMP}.sql
 LOCAL_TMPFILE=/tmp/${SOURCE_DB}-db-clean.sql
 
 proceed () {

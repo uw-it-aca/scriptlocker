@@ -1,39 +1,52 @@
 #!/bin/bash
 
 ##
-## A simple script to dump a 
+## A simple script to copy one gcp db to another.  Useful for copying a prod db snapshot to a test db.
 ##
 
-if [[ $# < 3 ]]; then
-    echo "usage: $0 <database_name> <database_instance>/<src_database_id> [<destination_database_instance>/]<destination_database_id>"
+if [[ $# < 4 ]]; then
+    echo "usage: $0 <gcp_db_instance_id> <source_database_name> <destination_database_name> <gcp_bucket_for_copy>"
     exit 1
 fi
 
-IFS='/'
+DB_INSTANCE_ID=$(echo $1); shift
+SOURCE_DB=$(echo $1); shift
+DESTINATION_DB=$(echo $1); shift
+GCP_BUCKET=$(echo $1); shift
 
-ARG=$(echo $1); shift
-DATABASE_NAME=${ARG[0]}
+DATESTAMP=$(date '+%Y-%m-%d')
+EXPORT_BUCKET=gs://${GCP_BUCKET}/${SOURCE_DB}-db-export-${DATESTAMP}.sql
+IMPORT_BUCKET=gs://${GCP_BUCKET}/${DESTINATION_DB}-db-test-import-${DATESTAMP}.sql
+LOCAL_TMPFILE=/tmp/${SOURCE_DB}-db-clean.sql
 
-ARG=$(echo $1); shift
-DATABASE_INSTANCE=${ARG[0]}
-SRC_DATABASE_INSTANCE=${ARG[0]}
-SRC_DATABASE=${ARG[1]}
+proceed () {
+    echo
+    read -p "$1 (y/n)?" yn
+    case $yn in
+        [Yy]*);;
+        *) echo "Aborting"; exit;;
+    esac
+    echo
+}
 
-ARG=$(echo $2); shift
-ARG_LEN=${#ARG[@]}
-DST_DATABASE_INSTANCE=$((ARG_LEN == 2 ? ARG[0] : SRC_DATABASE_INSTANCE))
-DST_DATABASE=$((ARG_LEN == 2 ? ARG[1] : ARG[2]))
+proceed "Export database $SOURCE_DB on instance $DB_INSTANCE_ID to $EXPORT_BUCKET"
+gcloud sql export sql $DB_INSTANCE_ID $EXPORT_BUCKET --database=$SOURCE_DB --offload
 
-BUCKET_NAME=${3:-"${DATABASE_NAME}-db-migration"}
-SNAPSHOT_FILE="snapshot-${SRC_DATABASE}-$(date '+%Y-%m-%d').sql"
-SNAPSHOT_TMPFILE="/tmp/$SHAPSHOT_FILE"
-SNAPSHOT_URL="gs://${BUCKET_NAME}/$SNAPSHOT_FILE"
+proceed "Sanitize exported sql in $EXPORT_BUCKET"
+gsutil cp $EXPORT_BUCKET - | sed -e 's/^\(USE .*;\)$/-- \1/' -e 's/^\(CREATE .*;\)$/-- \1/' > $LOCAL_TMPFILE
 
-echo "Preparing to snapshot ${SRC_DATABASE_INSTANCE}/${SRC_DATABASE} to ${DST_DATABASE_INSTANCE}/${DST_DATABASE} ..."
-exit
+echo head -30 $LOCAL_TMPFILE
+proceed "Do USE and CREATE clauses look suitably commented?\n"
 
-gcloud sql export sql ${SRC_DATABASE_INSTANCE} "${SNAPSHOT_URL}" --database=${SRC_DATABASE} --offload
+proceed "Upload sanitized sql to $IMPORT_BUCKET"
+gsutil cp $LOCAL_TMPFILE $IMPORT_BUCKET
+rm $LOCAL_TMPFILE
 
-gsutil cp "${SNAPSHOT_URL}" - | sed -e "s/^\(USE `${DATABASE_NAME}`;\)\$/-- \1/" -e 's/^\(CREATE .*;\)$/-- \1/' > $SNAPSHOT_TMPFILE
+proceed "Import $IMPORT_BUCKET to $DESTINATION_DB in $DB_INSTANCE_ID"
+gcloud sql import sql $DB_INSTANCE_ID $IMPORT_BUCKET --database=$DESTINATION_DB
 
-gcloud sql import sql ${DST_DATABASE_INSTANCE} "${SNAPSHOT_URL}" --database=${DST_DATABASE}
+proceed "Remove export and import buckets"
+echo "Removing $IMPORT_BUCKET"
+gsutil rm $IMPORT_BUCKET
+echo "Removing $EXPORT_BUCKET"
+gsutil rm $EXPORT_BUCKET

@@ -2,6 +2,7 @@
 
 import os
 import sys
+import ast
 import json
 import argparse
 from uw_r25.spaces import get_spaces
@@ -42,8 +43,8 @@ def reservation_payload(reservation):
     }
 
 
-def fetch_space(space_name):
-    spaces = get_spaces(contains=space_name)
+def fetch_space(**kwargs):
+    spaces = get_spaces(**kwargs)
     space_data = []
     for space in spaces:
         space_data.append(space_payload(space))
@@ -51,7 +52,8 @@ def fetch_space(space_name):
     return space_data
 
 
-def event_fetch(**kwargs):
+def fetch_events(**kwargs):
+# add Expand
     events = get_events(**kwargs)
     event_data = []
     for event in events:
@@ -60,16 +62,8 @@ def event_fetch(**kwargs):
     return event_data
 
 
-def fetch_events(space_id):
-    return event_fetch(space_id=space_id)
-
-
-def fetch_event(event_id):
-    return event_fetch(event_id=event_id)
-
-
-def fetch_reservations(event_id):
-    reservations = get_reservations(event_id=event_id)
+def fetch_reservations(**kwargs):
+    reservations = get_reservations(**kwargs)
     reservation_data = []
     for reservation in reservations:
         reservation_data.append(reservation_payload(reservation))
@@ -79,21 +73,20 @@ def fetch_reservations(event_id):
 
 if __name__ == '__main__':
     ap = argparse.ArgumentParser()
-    ap.add_argument('resource', help="spaces, events, event, or reservations")
-    ap.add_argument('param', help="space name, event id, or reservation id")
+    ap.add_argument('resource', help="spaces, events, or reservations")
+    ap.add_argument('kwargs', help="comma delimited list of API parameters")
     args = vars(ap.parse_args())
-    payload = ''
     resource = args['resource']
-    param = args['param']
+    expr = ast.parse('dict({})'.format(args['kwargs']), mode="eval")
+    kwargs = {kw.arg: ast.literal_eval(kw.value) for kw in expr.body.keywords}
 
+    payload = ''
     if resource == 'spaces':
-        payload = fetch_space(param)
+        payload = fetch_space(**kwargs)
     elif resource == 'events':
-        payload = fetch_events(param)
-    elif resource == 'event':
-        payload = fetch_event(param)
+        payload = fetch_events(**kwargs)
     elif resource == 'reservations':
-        payload = fetch_reservations(param)
+        payload = fetch_reservations(**kwargs)
     else:
         print("bad option: {}".format(resource), file=sys.stderr)
         print("usage: {} option argument".format(sys.argv[0]), file=sys.stderr)

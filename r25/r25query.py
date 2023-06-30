@@ -27,48 +27,34 @@ def event_payload(event):
         'event_id': event.event_id,
         'start_date': event.start_date,
         'end_date': event.end_date,
-        'reservations': event.reservations
+        'reservations': [reservation_payload(r) for r in event.reservations]
     }
 
 
 def reservation_payload(reservation):
     return {
-        'reservation_id': reservation.reservation_id,
-        'state': reservation.state,
-        'start_datetime': reservation.start_datetime,
-        'end_datetime': reservation.end_datetime,
-        'event_id': reservation.event_id,
-        'event_name': reservation.event_name,
-        'formal_name': space.formal_name
-    }
+            'reservation_id': reservation.reservation_id,
+            'state': reservation.state,
+            'start_datetime': reservation.start_datetime,
+            'end_datetime': reservation.end_datetime,
+            'event_id': reservation.event_id,
+            'event_name': reservation.event_name,
+            'profile_name': reservation.profile_name,
+            'contact_name': reservation.contact_name,
+            'contact_email': reservation.contact_email
+        }
 
 
 def fetch_space(**kwargs):
-    spaces = get_spaces(**kwargs)
-    space_data = []
-    for space in spaces:
-        space_data.append(space_payload(space))
-
-    return space_data
+    return [space_payload(space) for space in get_spaces(**kwargs)]
 
 
 def fetch_events(**kwargs):
-# add Expand
-    events = get_events(**kwargs)
-    event_data = []
-    for event in events:
-        event_data.append(event_payload(event))
-
-    return event_data
+    return [event_payload(event) for event in get_events(**kwargs)]
 
 
 def fetch_reservations(**kwargs):
-    reservations = get_reservations(**kwargs)
-    reservation_data = []
-    for reservation in reservations:
-        reservation_data.append(reservation_payload(reservation))
-
-    return reservation_data
+    return [reservation_payload(r) for r in get_reservations(**kwargs)]
 
 
 if __name__ == '__main__':

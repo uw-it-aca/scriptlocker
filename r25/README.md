@@ -33,7 +33,6 @@ to the provided endpoint's restclient call as keyword arguments.
 Example commands might include:
 ```
 ./r25query.py spaces "contains='engineering'"
-./r25query.py events "space_id=5910,start_dt='20230717',end_dt='20230717'"
 ./r25query.py events "space_id=12340,start_dt='20230717',end_dt='20230717',scope='extended',include='spaces'"
 ./r25query.py reservations "reservation_id='12345678'"
 ```

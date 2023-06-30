@@ -1,6 +1,6 @@
 # r25query.py
 Script to interactively query r25Live Webservices API,
-and demonstrate uw-restclient-r25 usage. The script accepts
+and demonstrate uw-restclient-r25 usage.
 
 ## Dependencies
 ```
@@ -26,6 +26,9 @@ export R25_CONFIG=<path_to_configuration_file>
 ```
 ./r25query [-h] <resource_name> <parameter_list>
 ```
+Where `<resource_name>` is the API resource endpoint `spaces`,
+`events` or `registrations`, and `<parameter_list>` is passed
+to the provided endpoint's restclient call as keyword arguments.
 
 Example commands might include:
 ```

@@ -2,7 +2,10 @@
 set -eu
 trap 'echo "pod setup failed" && exit 2' ERR
 
-usage() { echo "Usage: $0 [-v <value>] <repo_name>"  1>&2; exit 1; }
+usage() {
+    echo "Usage: $0 [-d] [-v <value>] <repo_name>" 1>&2
+    exit 1
+}
 
 append_values() {
     echo "${1}:" >> ${VALUES_FILE}
@@ -10,7 +13,19 @@ append_values() {
 }
 
 if [ $# -lt 1 ]; then
-   usage
+    echo
+    echo "This script, $0, takes an AXDD github repo name and creates a kubernetes"
+    echo "maintenance pod that can be used in the same way an application pod is used"
+    echo "to kubectl exec commands or a remote shell."
+    echo
+    echo "The pod and associated deployment is created relative to:"
+    echo "the current 'kubectl config current-context'"
+    echo
+    echo "Optional settings are '-d' to output some debugging and telemetry as the"
+    echo "script is running. and '-v helm-var=value' is used to set helm chart"
+    echo "variables on the fly."
+    echo
+    usage
 fi
 
 HELM_VALUES=""
@@ -86,6 +101,10 @@ instance: maintenance
 image:
   repository: IMAGE_REGISTRY
   tag: IMAGE_TAG
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 1
 deployment:
   enabled: true
 deploymentInitialization:
@@ -94,10 +113,6 @@ service:
   enabled: false
 lifecycle:
   enabled: false
-autoscaling:
-  enabled: true
-  minReplicas: 1
-  maxReplicas: 1
 metrics:
   enabled: false
 securityPolicy:
@@ -113,12 +128,12 @@ daemon:
 EOF
 
 # copy app values necessary for maintenance pod:
-#append_values database
+append_values database
 # append_values externalService
 append_values certs
 append_values environmentVariables
 append_values environmentVariablesSecrets
-#append_values externalSecrets
+# append_values externalSecrets
 
 # dynamic deployment values
 CHART_VERSION=$(cd ${CHART_DIR}; git rev-parse $CHART_BRANCH | cut -b 1-7)
@@ -143,10 +158,7 @@ fi
 
 docker run -v ${CHART_DIR}:/chart -v ${VALUES_DIR}:/values \
        $HELM_IMAGE template ${APP}-maintenance /chart --set-string "$OVERRIDE_VALUES" \
-       --debug -f /values/$WORKING_VALUES_FILENAME -f /dev/null |
-    yq -y -e 'del(select(.kind == "ExternalSecret"))' |
-    yq -y -e 'select(.kind == "Deployment").spec.template.spec.containers[0].command = ["/bin/sh", "-c", "while :; do sleep 30 ; done"]' \
-       > $WORKING_MANIFEST_FILE
+       --debug -f /values/$WORKING_VALUES_FILENAME -f /dev/null   > $WORKING_MANIFEST_FILE
 
 if [ $? -ne 0 ]; then
     echo helm fail
@@ -157,5 +169,11 @@ if [ $DEBUG -eq 1 ]; then
     cat $WORKING_MANIFEST_FILE
 fi
 
-echo "To create maintenance pod: kubectl apply -f $WORKING_MANIFEST_FILE"
-
+echo "# To create maintenance pod:"
+echo "kubectl apply -f $WORKING_MANIFEST_FILE"
+echo
+echo "# To exec a shell on the newly created pod:"
+echo "kubectl exec -it \$(kubectl get pod | grep ${APP}-prod-maintenance | awk '{print \$1}') -- bash"
+echo
+echo "# To remove the pod and it's deployment:"
+echo "kubectl delete deployment ${APP}-prod-maintenance"

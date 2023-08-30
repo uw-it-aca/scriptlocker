@@ -2,9 +2,91 @@
 set -eu
 trap 'echo "pod setup failed" && exit 2' ERR
 
+format_bold=$(tput bold)
+format_normal=$(tput sgr0)
+
+USAGE_STRING="${0##*/} [-h] <repo_name> [-d] [ [-v <value>] create | delete | cp src_file dst_file | sh ]"
+
+man_page() {
+    cat <<EOF
+${format_bold}NAME${format_normal}
+        ${0##*/} - manage and interact with a maintenance pod in kubernetes
+
+${format_bold}SYNOPSIS${format_normal}
+        $USAGE_STRING
+
+
+${format_bold}DESCRIPTION${format_normal}
+        The script ${0##*/} takes an application github repo name and
+        creates a kubernetes maintenance pod in the current kubectl
+        context.  The maintenance pod will have all of the environment,
+        access and resources of an application pod.
+
+        However, it is NOT part of the application's deployed service
+        and does not receive page requests.
+
+        The pod and associated deployment is created relative to:
+
+             kubectl config current-context
+
+        Optional settings are supported.
+
+        ${format_bold}-d${format_normal}
+                increase debug output
+
+        ${format_bold}-v var=value${format_normal}
+                for creation of maintenance pod, override values
+                defined in applications values file. for example:
+
+                    -v resources.limits.cpu=750m
+                    -v resources.requests.memory=512Mi
+
+        ${format_bold}create${format_normal}
+                references application's values file (based on the
+                current kubernetes context) to create deployment
+                of a single maintenance pod.
+
+        ${format_bold}delete${format_normal}
+                remove the maintenance pod and its deployment from
+                the cluster.
+
+        ${format_bold}sh${format_normal}
+                start an interactive shell on the maintenance pod.
+
+        ${format_bold}cp <src_file> <dst_file>${format_normal}
+                copy the source file from your workstation to the path
+                and filename specified by the destination file.
+
+
+EOF
+}
+
+raw_commands() {
+    cat <<EOF
+# To create maintenance pod:
+kubectl apply -f $WORKING_MANIFEST_FILE
+
+# To copy an updated settings file onto the pod:
+    kubectl cp docker/settings.py \$(kubectl get pod | grep ${APP}-prod-maintenance | awk '{print \$1}'):/app/project/settings.py
+
+# To exec a shell on the newly created pod:
+kubectl exec -it \$(kubectl get pod | grep ${APP}-prod-maintenance | awk '{print \$1}') -- bash
+
+# To remove the pod and it's deployment:
+kubectl delete deployment ${APP}-prod-maintenance
+
+EOF
+}
+
 usage() {
-    echo "Usage: $0 [-d] [-v <value>] <repo_name>" 1>&2
+    echo "usage: $USAGE_STRING" 1>&2
     exit 1
+}
+
+debug() {
+    if [ $DEBUG -gt 0 ]; then
+        echo "$1" 1>&2
+    fi
 }
 
 append_values() {
@@ -12,26 +94,41 @@ append_values() {
     yq -y ".${1}" $APP_VALUES_FILE | sed -e 's/^/  /' >> ${VALUES_FILE}
 }
 
-if [ $# -lt 1 ]; then
-    echo
-    echo "This script, $0, takes an AXDD github repo name and creates a kubernetes"
-    echo "maintenance pod that can be used in the same way an application pod is used"
-    echo "to kubectl exec commands or a remote shell."
-    echo
-    echo "The pod and associated deployment is created relative to:"
-    echo "the current 'kubectl config current-context'"
-    echo
-    echo "Optional settings are '-d' to output some debugging and telemetry as the"
-    echo "script is running. and '-v helm-var=value' is used to set helm chart"
-    echo "variables on the fly."
-    echo
-    usage
+deployment_running() {
+    $(kubectl get deployment ${1}-prod-maintenance >/dev/null 2>&1)
+    echo -n $?
+}
+
+maintenance_pod_name() {
+    echo $(kubectl get pod -l app.kubernetes.io/name=${1}-prod-maintenance -o json | jq -r '.items[0].metadata.name | select( . != null )')
+}
+
+get_app_values() {
+    TMP_VALUES=/tmp/maintenance-pod-app-values
+    VALUES_RESPONSE=$(curl -o $TMP_VALUES -w "%{http_code}" -s https://raw.githubusercontent.com/${1}/${2}/${3}/docker/${4}-values.yml)
+
+    if [ $VALUES_RESPONSE -ne 200 ]; then
+        echo "problem fetching values from repo (${VALUES_RESPONSE}).  repo name \"${REPO_NAME}\" correct?"
+        exit 1
+    fi
+
+    TMP_VALUES_ENV=$(cat $TMP_VALUES)
+    rm $TMP_VALUES
+    echo "$TMP_VALUES_ENV"
+}
+
+if [ $# -lt 1 ] || [ "$1" == "-h" ]; then
+    man_page
+    exit 1
 fi
+
+REPO_NAME=$1; shift
 
 HELM_VALUES=""
 DEBUG=0
 while getopts "dhv:" OPTION; do
     case "$OPTION" in
+        h) man_page; exit 0;;
         v) HELM_VALUES="${HELM_VALUES},${OPTARG}";;
         d) DEBUG=1;;
         *) usage;;
@@ -39,28 +136,28 @@ while getopts "dhv:" OPTION; do
 done
 shift $((OPTIND-1))
 
-REPO_NAME=$1
-shift
-
-
 # Client Version: v1.27.4
 KUBECTL_VERSION=$(kubectl version --short 2>/dev/null | grep 'Client Version: v' | sed 's/Client Version: v//')
-if [ "$(echo -e "1.25\n$KUBECTL_VERSION" | sort -rV | head -n1)" = "1.25" ]; then 
+if [ "$(echo -e "1.25\n$KUBECTL_VERSION" | sort -rV | head -n1)" = "1.25" ]; then
   echo "$0 needs kubect version 1.25 or greater"
   exit 1
 fi
 
-# fetch APP name
+debug "fetch prod values to determine app name (.repo value)"
 APP_INSTANCE=prod
 REPO_ORG=uw-it-aca
 REPO_BRANCH=main
-APP=$(curl -s https://raw.githubusercontent.com/${REPO_ORG}/${REPO_NAME}/${REPO_BRANCH}/docker/${APP_INSTANCE}-values.yml | yq -r '.repo')
+APP_VALUES=$(get_app_values $REPO_ORG $REPO_NAME $REPO_BRANCH $APP_INSTANCE)
 
-# gather k8s context
+APP=$(echo "$APP_VALUES" | yq -r '.repo' -)
+
 APP_NAME=$(kubectl get deployment --no-headers -o custom-columns=":metadata.name" | grep -E "${APP}-prod-(test|prod)$")
+debug "identified k8s app deployment ${APP_NAME}"
+
 APP_INSTANCE=$(echo $APP_NAME | sed "s/^${APP}-prod-//")
 APP_IMAGE_TAG=$(kubectl get deployment -l app.kubernetes.io/name=$APP_NAME -o jsonpath='{.items[0].spec.template.spec.containers[0].image}' | sed 's/^.*[:]//')
 WORKING_ID=${APP}-maintenance-${APP_INSTANCE}-${APP_IMAGE_TAG}
+debug "WORKING_ID=$WORKING_ID"
 
 APP_HOME_DIR=$(echo ~/.k8s_maintenance)
 WORKING_DIR=${APP_HOME_DIR}/${WORKING_ID}
@@ -70,6 +167,8 @@ APP_VALUES_FILE=${VALUES_DIR}/${APP_INSTANCE}-values.yml
 WORKING_VALUES_FILENAME=values.yml
 VALUES_FILE=${VALUES_DIR}/${WORKING_VALUES_FILENAME}
 WORKING_MANIFEST_FILE=${WORKING_DIR}/manifest.yml
+debug "working directory $WORKING_DIR"
+debug "maintenance manifest in $WORKING_MANIFEST_FILE"
 
 HELM_APP_VERSION="3.4.2"
 HELM_CHART_BRANCH="${HELM_CHART_BRANCH=master}"
@@ -84,17 +183,17 @@ REGISTRY_HOSTNAME=us-docker.pkg.dev
 REGISTRY_PROJECT_ID=uwit-mci-axdd
 REGISTRY_PATH=containers
 
-# set up working directory
+debug "set up working directories"
 mkdir -p $APP_HOME_DIR $WORKING_DIR $VALUES_DIR $LOGGING_DIR
 
-# fetch fresh copy of chart templates
+debug "fetch charts $CHART_REPO_PATH to $CHART_DIR"
 rm -rf $CHART_DIR
 git clone --depth 1 $CHART_REPO_PATH --branch $CHART_BRANCH $CHART_DIR &> $LOGGING_DIR/chart-clone.log
 
-# fetch fresh app values file
-curl -s https://raw.githubusercontent.com/${REPO_ORG}/${REPO_NAME}/${REPO_BRANCH}/docker/${APP_INSTANCE}-values.yml > $APP_VALUES_FILE
+debug "fetch app ${APP_INSTANCE}-values.yml values to $APP_VALUES_FILE"
+echo "$(get_app_values $REPO_ORG $REPO_NAME $REPO_BRANCH $APP_INSTANCE)" > $APP_VALUES_FILE
 
-# initialize values file, disabling unnecessary components and k8s objects
+debug "initialize maintenance deployment values, disabling unnecessary components and k8s objects"
 cat <<EOF > ${VALUES_DIR}/${WORKING_VALUES_FILENAME}
 repo: $APP
 instance: maintenance
@@ -135,45 +234,102 @@ append_values environmentVariables
 append_values environmentVariablesSecrets
 # append_values externalSecrets
 
-# dynamic deployment values
 CHART_VERSION=$(cd ${CHART_DIR}; git rev-parse $CHART_BRANCH | cut -b 1-7)
 IR_PARTS=(${REGISTRY_HOSTNAME}
           ${REGISTRY_PROJECT_ID}
           ${REGISTRY_PATH}
           ${APP})
 OVERRIDE_VALUES="image.tag=${APP_IMAGE_TAG},chartVersion=${CHART_VERSION},image.repository=$(IFS=/; echo "${IR_PARTS[*]}"),${HELM_VALUES}"
+debug "dynamic deployment values: $OVERRIDE_VALUES"
 
-if [ $DEBUG -eq 1 ]; then
-    echo APP: $APP
-    echo APP_NAME: $APP_NAME
-    echo APP_INSTANCE: $APP_INSTANCE
-    echo APP_IMAGE_TAG: $APP_IMAGE_TAG
-    echo WORKING_ID: $WORKING_ID
-    echo WORKING_DIR: $WORKING_DIR
-    echo APP_VALUES_FILE: $APP_VALUES_FILE
-    echo WORKING_VALUES_FILENAME: $WORKING_VALUES_FILENAME
-    echo WORKING_MANIFEST_FILE: $WORKING_MANIFEST_FILE
-    echo OVERRIDE_VALUES: $OVERRIDE_VALUES
-fi
+#if [ $DEBUG -gt 0 ]; then
+#    IFS= read -r -d '' VAR_LIST <<EOF
+#APP: $APP
+#APP_NAME: $APP_NAME
+#APP_INSTANCE: $APP_INSTANCE
+#APP_IMAGE_TAG: $APP_IMAGE_TAG
+#WORKING_ID: $WORKING_ID
+#WORKING_DIR: $WORKING_DIR
+#APP_VALUES_FILE: $APP_VALUES_FILE
+#WORKING_VALUES_FILENAME: $WORKING_VALUES_FILENAME
+#WORKING_MANIFEST_FILE: $WORKING_MANIFEST_FILE
+#OVERRIDE_VALUES: $OVERRIDE_VALUES
+#EOF
+#    debug "$VAR_LIST"
+#fi
 
+debug "run heml docker image to build manifest $WORKING_MANIFEST_FILE"
 docker run -v ${CHART_DIR}:/chart -v ${VALUES_DIR}:/values \
        $HELM_IMAGE template ${APP}-maintenance /chart --set-string "$OVERRIDE_VALUES" \
-       --debug -f /values/$WORKING_VALUES_FILENAME -f /dev/null   > $WORKING_MANIFEST_FILE
+       -f /values/$WORKING_VALUES_FILENAME -f /dev/null > $WORKING_MANIFEST_FILE
 
 if [ $? -ne 0 ]; then
     echo helm fail
     exit 1
 fi
 
-if [ $DEBUG -eq 1 ]; then
-    cat $WORKING_MANIFEST_FILE
-fi
+if [ $# -gt 0 ]; then
+    ACTION=$1 ; shift
+    case "$ACTION" in
+        create)
+            if [ "$(deployment_running $APP)" == "0" ]; then
+                echo "deployment ${APP}-prod-maintenance already running"
+                exit 1
+            fi
 
-echo "# To create maintenance pod:"
-echo "kubectl apply -f $WORKING_MANIFEST_FILE"
-echo
-echo "# To exec a shell on the newly created pod:"
-echo "kubectl exec -it \$(kubectl get pod | grep ${APP}-prod-maintenance | awk '{print \$1}') -- bash"
-echo
-echo "# To remove the pod and it's deployment:"
-echo "kubectl delete deployment ${APP}-prod-maintenance"
+            echo -n "Applying deployment ${APP}-prod-maintenance"
+            kubectl apply -f $WORKING_MANIFEST_FILE 2>&1 >${LOGGING_DIR}/deployment.log
+            RUNNING_POD=""
+            while [ -z "$RUNNING_POD" ]; do
+                echo -n '.'
+                sleep 3s
+                RUNNING_POD=$(maintenance_pod_name $APP)
+            done
+            echo
+
+            exit 0
+            ;;
+        delete)
+            if [ "$(deployment_running $APP)" == "1" ]; then
+                echo "deployment ${APP}-prod-maintenance is not running"
+                exit 1
+            fi
+
+            echo "deleting deployment ${APP}-prod-maintenance"
+            kubectl delete deployment ${APP}-prod-maintenance
+            exit 0
+            ;;
+        cp)
+            if [ $# -lt 2 ]; then
+                usage
+            fi
+
+            SRCFILE=$1 ; shift
+            DSTFILE=$1 ; shift
+
+            POD_NAME=$(maintenance_pod_name $APP)
+            if [ -z "$POD_NAME" ]; then
+                echo "maintenence pod is not running"
+                exit 1
+            fi
+
+            kubectl cp $SRCFILE ${POD_NAME}:${DSTFILE}
+            exit 0
+            ;;
+        sh)
+            POD_NAME=$(maintenance_pod_name $APP)
+            if [ -z "$POD_NAME" ]; then
+                echo "maintenence pod is not running"
+                exit 1
+            fi
+
+            kubectl exec -it ${POD_NAME} -- bash
+            exit 0
+            ;;
+        *)
+            usage
+            ;;
+    esac
+else
+    raw_commands
+fi

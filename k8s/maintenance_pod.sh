@@ -2,21 +2,21 @@
 set -eu
 trap 'echo "pod setup failed" && exit 2' ERR
 
-format_bold=$(tput bold)
-format_normal=$(tput sgr0)
+FORMAT_BOLD=$(tput bold)
+FORMAT_NORMAL=$(tput sgr0)
 
 USAGE_STRING="${0##*/} [-h] <repo_name> [-d] [ [-v <value>] create | delete | cp src_file dst_file | sh ]"
 
 man_page() {
     cat <<EOF
-${format_bold}NAME${format_normal}
+${FORMAT_BOLD}NAME${FORMAT_NORMAL}
         ${0##*/} - manage and interact with a maintenance pod in kubernetes
 
-${format_bold}SYNOPSIS${format_normal}
+${FORMAT_BOLD}SYNOPSIS${FORMAT_NORMAL}
         $USAGE_STRING
 
 
-${format_bold}DESCRIPTION${format_normal}
+${FORMAT_BOLD}DESCRIPTION${FORMAT_NORMAL}
         The script ${0##*/} takes an application github repo name and
         creates a kubernetes maintenance pod in the current kubectl
         context.  The maintenance pod will have all of the environment,
@@ -31,29 +31,29 @@ ${format_bold}DESCRIPTION${format_normal}
 
         Optional settings are supported.
 
-        ${format_bold}-d${format_normal}
+        ${FORMAT_BOLD}-d${FORMAT_NORMAL}
                 increase debug output
 
-        ${format_bold}-v var=value${format_normal}
+        ${FORMAT_BOLD}-v var=value${FORMAT_NORMAL}
                 for creation of maintenance pod, override values
                 defined in applications values file. for example:
 
                     -v resources.limits.cpu=750m
                     -v resources.requests.memory=512Mi
 
-        ${format_bold}create${format_normal}
+        ${FORMAT_BOLD}create${FORMAT_NORMAL}
                 references application's values file (based on the
                 current kubernetes context) to create deployment
                 of a single maintenance pod.
 
-        ${format_bold}delete${format_normal}
+        ${FORMAT_BOLD}delete${FORMAT_NORMAL}
                 remove the maintenance pod and its deployment from
                 the cluster.
 
-        ${format_bold}sh${format_normal}
+        ${FORMAT_BOLD}sh${FORMAT_NORMAL}
                 start an interactive shell on the maintenance pod.
 
-        ${format_bold}cp <src_file> <dst_file>${format_normal}
+        ${FORMAT_BOLD}cp <src_file> <dst_file>${FORMAT_NORMAL}
                 copy the source file from your workstation to the path
                 and filename specified by the destination file.
 
@@ -228,11 +228,9 @@ EOF
 
 # copy app values necessary for maintenance pod:
 append_values database
-# append_values externalService
 append_values certs
 append_values environmentVariables
 append_values environmentVariablesSecrets
-# append_values externalSecrets
 
 CHART_VERSION=$(cd ${CHART_DIR}; git rev-parse $CHART_BRANCH | cut -b 1-7)
 IR_PARTS=(${REGISTRY_HOSTNAME}
@@ -267,6 +265,11 @@ if [ $? -ne 0 ]; then
     echo helm fail
     exit 1
 fi
+
+debug "override default container command"
+TMP_MANIFEST=/tmp/tmp-values.yaml
+sed -e '/ports:$/i \          command: ["/bin/bash", "-c", "tail -f /dev/null"]' $WORKING_MANIFEST_FILE > $TMP_MANIFEST
+sed -e '/ports:/,+3d' $TMP_MANIFEST > $WORKING_MANIFEST_FILE
 
 if [ $# -gt 0 ]; then
     ACTION=$1 ; shift

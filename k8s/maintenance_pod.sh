@@ -270,6 +270,7 @@ debug "override default container command"
 TMP_MANIFEST=/tmp/tmp-values.yaml
 sed -e '/ports:$/i \          command: ["/bin/bash", "-c", "tail -f /dev/null"]' $WORKING_MANIFEST_FILE > $TMP_MANIFEST
 sed -e '/ports:/,+3d' $TMP_MANIFEST > $WORKING_MANIFEST_FILE
+rm $TMP_MANIFEST
 
 if [ $# -gt 0 ]; then
     ACTION=$1 ; shift

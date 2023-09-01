@@ -126,10 +126,23 @@ HELM_VALUES=""
 DEBUG=0
 while getopts "dhv:" OPTION; do
     case "$OPTION" in
-        h) man_page; exit 0;;
-        v) HELM_VALUES="${HELM_VALUES},${OPTARG}";;
-        d) DEBUG=1;;
-        *) usage;;
+        h)
+            man_page
+            exit 0
+            ;;
+        v)
+            if [ -z "${HELM_VALUES}" ] ; then
+                HELM_VALUES=${OPTARG}
+            else
+                HELM_VALUES=${HELM_VALUES},${OPTARG}
+            fi
+            ;;
+        d)
+            DEBUG=1
+            ;;
+        *)
+            usage
+            ;;
     esac
 done
 shift $((OPTIND-1))

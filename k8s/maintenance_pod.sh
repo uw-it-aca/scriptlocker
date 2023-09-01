@@ -2,12 +2,11 @@
 set -eu
 trap 'echo "pod setup failed" && exit 2' ERR
 
-FORMAT_BOLD=$(tput bold)
-FORMAT_NORMAL=$(tput sgr0)
-
 USAGE_STRING="${0##*/} [-h] <repo_name> [-d] [ [-v <value>] create | delete | cp src_file dst_file | sh ]"
 
 man_page() {
+    FORMAT_BOLD=$(tput bold)
+    FORMAT_NORMAL=$(tput sgr0)
     cat <<EOF
 ${FORMAT_BOLD}NAME${FORMAT_NORMAL}
         ${0##*/} - manage and interact with a maintenance pod in kubernetes
@@ -94,13 +93,12 @@ append_values() {
     yq -y ".${1}" $APP_VALUES_FILE | sed -e 's/^/  /' >> ${VALUES_FILE}
 }
 
-deployment_running() {
-    $(kubectl get deployment ${1}-prod-maintenance >/dev/null 2>&1)
-    echo -n $?
+running_pod() {
+    kubectl get pod -l app.kubernetes.io/name=${1}-prod-maintenance -o json | jq -r '.items[0].spec.containers[0].image | select( . != null )' | sed "s,.*${1}:,,"
 }
 
 maintenance_pod_name() {
-    echo $(kubectl get pod -l app.kubernetes.io/name=${1}-prod-maintenance -o json | jq -r '.items[0].metadata.name | select( . != null )')
+    kubectl get pod -l app.kubernetes.io/name=${1}-prod-maintenance -o json | jq -r '.items[0].metadata.name | select( . != null )'
 }
 
 get_app_values() {
@@ -156,11 +154,10 @@ debug "identified k8s app deployment ${APP_NAME}"
 
 APP_INSTANCE=$(echo $APP_NAME | sed "s/^${APP}-prod-//")
 APP_IMAGE_TAG=$(kubectl get deployment -l app.kubernetes.io/name=$APP_NAME -o jsonpath='{.items[0].spec.template.spec.containers[0].image}' | sed 's/^.*[:]//')
-WORKING_ID=${APP}-maintenance-${APP_INSTANCE}-${APP_IMAGE_TAG}
-debug "WORKING_ID=$WORKING_ID"
+debug "app image tag identified ${APP_IMAGE_TAG}"
 
 APP_HOME_DIR=$(echo ~/.k8s_maintenance)
-WORKING_DIR=${APP_HOME_DIR}/${WORKING_ID}
+WORKING_DIR=${APP_HOME_DIR}/${APP}-maintenance-${APP_INSTANCE}
 VALUES_DIR=${WORKING_DIR}/values
 LOGGING_DIR=${WORKING_DIR}/log
 APP_VALUES_FILE=${VALUES_DIR}/${APP_INSTANCE}-values.yml
@@ -185,6 +182,18 @@ REGISTRY_PATH=containers
 
 debug "set up working directories"
 mkdir -p $APP_HOME_DIR $WORKING_DIR $VALUES_DIR $LOGGING_DIR
+
+CURRENT_IMAGE_TAG=$(running_pod $APP)
+if [ -n "$CURRENT_IMAGE_TAG" ] && [ "$CURRENT_IMAGE_TAG" != "$APP_IMAGE_TAG" ]; then
+    cat <<EOF
+maintenance pod based on image tag $CURRENT_IMAGE_TAG is currently running"
+create a new maintenance pod based on $APP_IMAGE_TAG after removing the current pod with:"
+
+    ${0##*/} $REPO_NAME delete"
+
+EOF
+    exit 0
+fi
 
 debug "fetch charts $CHART_REPO_PATH to $CHART_DIR"
 rm -rf $CHART_DIR
@@ -240,23 +249,7 @@ IR_PARTS=(${REGISTRY_HOSTNAME}
 OVERRIDE_VALUES="image.tag=${APP_IMAGE_TAG},chartVersion=${CHART_VERSION},image.repository=$(IFS=/; echo "${IR_PARTS[*]}"),${HELM_VALUES}"
 debug "dynamic deployment values: $OVERRIDE_VALUES"
 
-#if [ $DEBUG -gt 0 ]; then
-#    IFS= read -r -d '' VAR_LIST <<EOF
-#APP: $APP
-#APP_NAME: $APP_NAME
-#APP_INSTANCE: $APP_INSTANCE
-#APP_IMAGE_TAG: $APP_IMAGE_TAG
-#WORKING_ID: $WORKING_ID
-#WORKING_DIR: $WORKING_DIR
-#APP_VALUES_FILE: $APP_VALUES_FILE
-#WORKING_VALUES_FILENAME: $WORKING_VALUES_FILENAME
-#WORKING_MANIFEST_FILE: $WORKING_MANIFEST_FILE
-#OVERRIDE_VALUES: $OVERRIDE_VALUES
-#EOF
-#    debug "$VAR_LIST"
-#fi
-
-debug "run heml docker image to build manifest $WORKING_MANIFEST_FILE"
+debug "run helm docker image to build manifest $WORKING_MANIFEST_FILE"
 docker run -v ${CHART_DIR}:/chart -v ${VALUES_DIR}:/values \
        $HELM_IMAGE template ${APP}-maintenance /chart --set-string "$OVERRIDE_VALUES" \
        -f /values/$WORKING_VALUES_FILENAME -f /dev/null > $WORKING_MANIFEST_FILE
@@ -276,25 +269,25 @@ if [ $# -gt 0 ]; then
     ACTION=$1 ; shift
     case "$ACTION" in
         create)
-            if [ "$(deployment_running $APP)" == "0" ]; then
+            if [ -n "$(running_pod $APP)" ]; then
                 echo "deployment ${APP}-prod-maintenance already running"
                 exit 1
             fi
 
             echo -n "Applying deployment ${APP}-prod-maintenance"
             kubectl apply -f $WORKING_MANIFEST_FILE 2>&1 >${LOGGING_DIR}/deployment.log
-            RUNNING_POD=""
-            while [ -z "$RUNNING_POD" ]; do
+            LAUNCHED_POD=""
+            while [ -z "$LAUNCHED_POD" ]; do
                 echo -n '.'
                 sleep 3s
-                RUNNING_POD=$(maintenance_pod_name $APP)
+                LAUNCHED_POD=$(maintenance_pod_name $APP)
             done
             echo
 
             exit 0
             ;;
         delete)
-            if [ "$(deployment_running $APP)" == "1" ]; then
+            if [ -z "$(running_pod $APP)" ]; then
                 echo "deployment ${APP}-prod-maintenance is not running"
                 exit 1
             fi

@@ -1,6 +1,4 @@
 #!/bin/bash
-set -eu
-trap 'echo "pod setup failed" && exit 2' ERR
 
 USAGE_STRING="${0##*/} [-h] <repo_name> [-d] [ [-v <value>] create | delete | cp src_file dst_file | sh ]"
 
@@ -274,7 +272,14 @@ fi
 
 debug "override default container command"
 TMP_MANIFEST=/tmp/tmp-values.yaml
-sed -e '/ports:$/i \          command: ["/bin/bash", "-c", "tail -f /dev/null"]' $WORKING_MANIFEST_FILE > $TMP_MANIFEST
+IFS= read -d '' POD_SPEC_ADDITIONS <<EOF
+          command: ["/bin/bash", "-c", "tail -f /dev/null"]
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsUser: 0
+EOF
+
+sed -e "/ports:\$/i \\${POD_SPEC_ADDITIONS//$'\n'/\\n}" $WORKING_MANIFEST_FILE > $TMP_MANIFEST
 sed -e '/ports:/,+3d' $TMP_MANIFEST > $WORKING_MANIFEST_FILE
 rm $TMP_MANIFEST
 

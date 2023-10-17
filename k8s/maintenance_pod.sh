@@ -87,8 +87,13 @@ debug() {
 }
 
 append_values() {
+    values=$(yq -y ".${1}" $APP_VALUES_FILE)
+    if [[ $values = null*  ]]; then
+        return
+    fi
+
     echo "${1}:" >> ${VALUES_FILE}
-    yq -y ".${1}" $APP_VALUES_FILE | sed -e 's/^/  /' >> ${VALUES_FILE}
+    echo "$values" | sed -e 's/^/  /' >> ${VALUES_FILE}
 }
 
 running_pod() {

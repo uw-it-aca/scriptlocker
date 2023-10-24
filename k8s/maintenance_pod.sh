@@ -254,6 +254,7 @@ EOF
 # copy app values necessary for maintenance pod:
 append_values database
 append_values certs
+append_values gcsCredentials
 append_values environmentVariables
 append_values environmentVariablesSecrets
 

@@ -14,7 +14,7 @@ dxm() {
   container=$1
   shift
   
-  IFS=',' read -ra commands << "$@"
+  IFS=',' read -ra commands <<< "$@"
   for command in "${commands[@]}"; do
     docker exec -ti $container bin/python manage.py $command
   done

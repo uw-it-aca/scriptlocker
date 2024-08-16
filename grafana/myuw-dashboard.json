@@ -194,7 +194,7 @@
           "calcs": [
             "sum"
           ],
-          "fields": "/^\\(sum\\(increase\\(restclient_response_status_code_bucket\\{exported_service=\"pws\", job=\"myuw\\-prod\\-prod\", le=~\"500\\(\\.0\\)\\?\"\\}\\[48h\\]\\)\\) \\-sum\\(increase\\(restclient_response_status_code_bucket\\{exported_service=\"pws\", job=\"myuw\\-prod\\-prod\", le=~\"400\\(\\.0\\)\\?\"\\}\\[48h\\]\\)\\)\\) / sum\\(increase\\(restclient_response_status_code_bucket\\{exported_service=\"pws\", job=\"myuw\\-prod\\-prod\", le=~\"500\\(\\.0\\)\\?\"\\}\\[48h\\]\\)\\) \\> bool 0\\.00001$/",
+          "fields": "/^\\(sum\\(increase\\(restclient_response_status_code_bucket\\{exported_service=\"gws\", job=\"myuw\\-prod\\-prod\", le=~\"500\\(\\.0\\)\\?\"\\}\\[48h\\]\\)\\) \\-sum\\(increase\\(restclient_response_status_code_bucket\\{exported_service=\"gws\", job=\"myuw\\-prod\\-prod\", le=~\"400\\(\\.0\\)\\?\"\\}\\[48h\\]\\)\\)\\) / sum\\(increase\\(restclient_response_status_code_bucket\\{exported_service=\"gws\", job=\"myuw\\-prod\\-prod\", le=~\"500\\(\\.0\\)\\?\"\\}\\[48h\\]\\)\\) \\> bool 0\\.001$/",
           "limit": 1,
           "values": true
         },
@@ -208,7 +208,7 @@
             "uid": "P1809F7CD0C75ACF3"
           },
           "editorMode": "code",
-          "expr": "(sum(increase(restclient_response_status_code_bucket{exported_service=\"gws\", job=\"$deploy_instance\", le=~\"500(.0)?\"}[$sample_period])) -sum(increase(restclient_response_status_code_bucket{exported_service=\"pws\", job=\"$deploy_instance\", le=~\"400(.0)?\"}[$sample_period]))) / sum(increase(restclient_response_status_code_bucket{exported_service=\"gws\", job=\"$deploy_instance\", le=~\"500(.0)?\"}[$sample_period])) > bool 0.001",
+          "expr": "(sum(increase(restclient_response_status_code_bucket{exported_service=\"gws\", job=\"$deploy_instance\", le=~\"500(.0)?\"}[$sample_period])) -sum(increase(restclient_response_status_code_bucket{exported_service=\"gws\", job=\"$deploy_instance\", le=~\"400(.0)?\"}[$sample_period]))) / sum(increase(restclient_response_status_code_bucket{exported_service=\"gws\", job=\"$deploy_instance\", le=~\"500(.0)?\"}[$sample_period])) > bool 0.001",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -366,7 +366,7 @@
           "calcs": [
             "sum"
           ],
-          "fields": "/^\\(sum\\(increase\\(restclient_response_status_code_bucket\\{exported_service=\"pws\", job=\"myuw\\-prod\\-prod\", le=~\"500\\(\\.0\\)\\?\"\\}\\[48h\\]\\)\\) \\-sum\\(increase\\(restclient_response_status_code_bucket\\{exported_service=\"pws\", job=\"myuw\\-prod\\-prod\", le=~\"400\\(\\.0\\)\\?\"\\}\\[48h\\]\\)\\)\\) / sum\\(increase\\(restclient_response_status_code_bucket\\{exported_service=\"pws\", job=\"myuw\\-prod\\-prod\", le=~\"500\\(\\.0\\)\\?\"\\}\\[48h\\]\\)\\) \\> bool 0\\.00001$/",
+          "fields": "/^\\(sum\\(increase\\(restclient_response_status_code_bucket\\{exported_service=\"sws\", job=\"myuw\\-prod\\-prod\", le=~\"500\\(\\.0\\)\\?\"\\}\\[48h\\]\\)\\) \\-sum\\(increase\\(restclient_response_status_code_bucket\\{exported_service=\"sws\", job=\"myuw\\-prod\\-prod\", le=~\"400\\(\\.0\\)\\?\"\\}\\[48h\\]\\)\\)\\) / sum\\(increase\\(restclient_response_status_code_bucket\\{exported_service=\"sws\", job=\"myuw\\-prod\\-prod\", le=~\"500\\(\\.0\\)\\?\"\\}\\[48h\\]\\)\\) \\> bool 0\\.001$/",
           "limit": 1,
           "values": true
         },
@@ -380,7 +380,7 @@
             "uid": "P1809F7CD0C75ACF3"
           },
           "editorMode": "code",
-          "expr": "(sum(increase(restclient_response_status_code_bucket{exported_service=\"sws\", job=\"$deploy_instance\", le=~\"500(.0)?\"}[$sample_period])) -sum(increase(restclient_response_status_code_bucket{exported_service=\"pws\", job=\"$deploy_instance\", le=~\"400(.0)?\"}[$sample_period]))) / sum(increase(restclient_response_status_code_bucket{exported_service=\"sws\", job=\"$deploy_instance\", le=~\"500(.0)?\"}[$sample_period])) > bool 0.001",
+          "expr": "(sum(increase(restclient_response_status_code_bucket{exported_service=\"sws\", job=\"$deploy_instance\", le=~\"500(.0)?\"}[$sample_period])) -sum(increase(restclient_response_status_code_bucket{exported_service=\"sws\", job=\"$deploy_instance\", le=~\"400(.0)?\"}[$sample_period]))) / sum(increase(restclient_response_status_code_bucket{exported_service=\"sws\", job=\"$deploy_instance\", le=~\"500(.0)?\"}[$sample_period])) > bool 0.001",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"

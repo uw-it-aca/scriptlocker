@@ -76,7 +76,7 @@
       },
       "gridPos": {
         "h": 3,
-        "w": 4,
+        "w": 5,
         "x": 0,
         "y": 1
       },
@@ -129,7 +129,7 @@
       },
       "id": 3,
       "panels": [],
-      "title": "Dependent Services",
+      "title": "Dependent Service Status",
       "type": "row"
     },
     {
@@ -137,7 +137,7 @@
         "type": "prometheus",
         "uid": "P1809F7CD0C75ACF3"
       },
-      "description": "MyUW queries the Student Web Service for course and registration information.",
+      "description": "MyUW depends on the UW Groups Web Service for user affiliation.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -175,15 +175,100 @@
       },
       "gridPos": {
         "h": 3,
-        "w": 4,
+        "w": 5,
         "x": 0,
         "y": 5
+      },
+      "id": 6,
+      "links": [
+        {
+          "title": "Group Web Service Status",
+          "url": "https://uwit-mci-0011-cluster.mci.s.uw.edu/grafana/d/e2SMPsFMz/restclients-health?orgId=1&refresh=1m&var-service=myuw-prod-prod&var-exported_service=gws&from=now-1h&to=now&var-exported_job="
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "/^\\(sum\\(increase\\(restclient_response_status_code_bucket\\{exported_service=\"pws\", job=\"myuw\\-prod\\-prod\", le=~\"500\\(\\.0\\)\\?\"\\}\\[48h\\]\\)\\) \\-sum\\(increase\\(restclient_response_status_code_bucket\\{exported_service=\"pws\", job=\"myuw\\-prod\\-prod\", le=~\"400\\(\\.0\\)\\?\"\\}\\[48h\\]\\)\\)\\) / sum\\(increase\\(restclient_response_status_code_bucket\\{exported_service=\"pws\", job=\"myuw\\-prod\\-prod\", le=~\"500\\(\\.0\\)\\?\"\\}\\[48h\\]\\)\\) \\> bool 0\\.00001$/",
+          "limit": 1,
+          "values": true
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.5.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
+          "expr": "(sum(increase(restclient_response_status_code_bucket{exported_service=\"gws\", job=\"$deploy_instance\", le=~\"500(.0)?\"}[$sample_period])) -sum(increase(restclient_response_status_code_bucket{exported_service=\"pws\", job=\"$deploy_instance\", le=~\"400(.0)?\"}[$sample_period]))) / sum(increase(restclient_response_status_code_bucket{exported_service=\"gws\", job=\"$deploy_instance\", le=~\"500(.0)?\"}[$sample_period])) > bool 0.001",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Group Web Service",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P1809F7CD0C75ACF3"
+      },
+      "description": "MyUW depends on the Person Web Service for user information.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "green",
+                  "index": 1,
+                  "text": "UP"
+                },
+                "1": {
+                  "color": "red",
+                  "index": 0,
+                  "text": "DOWN"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "noValue": "UP",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 5,
+        "x": 0,
+        "y": 8
       },
       "id": 4,
       "links": [
         {
-          "title": "Enterprise Web Service Status",
-          "url": "https://graphs.s.uw.edu/grafana/d/6bQ3MMcZk/prod?orgId=1&refresh=1m&from=now-6h&to=now"
+          "title": "Person Web Service Status",
+          "url": "https://uwit-mci-0011-cluster.mci.s.uw.edu/grafana/d/e2SMPsFMz/restclients-health?orgId=1&refresh=1m&var-service=myuw-prod-prod&var-exported_service=pws&from=now-1h&to=now&var-exported_job="
         }
       ],
       "options": {
@@ -210,6 +295,92 @@
           },
           "editorMode": "code",
           "expr": "(sum(increase(restclient_response_status_code_bucket{exported_service=\"pws\", job=\"$deploy_instance\", le=~\"500(.0)?\"}[$sample_period])) -sum(increase(restclient_response_status_code_bucket{exported_service=\"pws\", job=\"$deploy_instance\", le=~\"400(.0)?\"}[$sample_period]))) / sum(increase(restclient_response_status_code_bucket{exported_service=\"pws\", job=\"$deploy_instance\", le=~\"500(.0)?\"}[$sample_period])) > bool 0.001",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Person Web Service",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P1809F7CD0C75ACF3"
+      },
+      "description": "MyUW depends on the Student Web Service for course, enrollment , notice, person and registration information.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "green",
+                  "index": 1,
+                  "text": "UP"
+                },
+                "1": {
+                  "color": "red",
+                  "index": 0,
+                  "text": "DOWN"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "noValue": "UP",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 5,
+        "x": 0,
+        "y": 11
+      },
+      "id": 5,
+      "links": [
+        {
+          "title": "Student Web Service Status",
+          "url": "https://uwit-mci-0011-cluster.mci.s.uw.edu/grafana/d/e2SMPsFMz/restclients-health?orgId=1&refresh=1m&var-service=myuw-prod-prod&var-exported_service=sws&from=now-1h&to=now&var-exported_job="
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "/^\\(sum\\(increase\\(restclient_response_status_code_bucket\\{exported_service=\"pws\", job=\"myuw\\-prod\\-prod\", le=~\"500\\(\\.0\\)\\?\"\\}\\[48h\\]\\)\\) \\-sum\\(increase\\(restclient_response_status_code_bucket\\{exported_service=\"pws\", job=\"myuw\\-prod\\-prod\", le=~\"400\\(\\.0\\)\\?\"\\}\\[48h\\]\\)\\)\\) / sum\\(increase\\(restclient_response_status_code_bucket\\{exported_service=\"pws\", job=\"myuw\\-prod\\-prod\", le=~\"500\\(\\.0\\)\\?\"\\}\\[48h\\]\\)\\) \\> bool 0\\.00001$/",
+          "limit": 1,
+          "values": true
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.5.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
+          "expr": "(sum(increase(restclient_response_status_code_bucket{exported_service=\"sws\", job=\"$deploy_instance\", le=~\"500(.0)?\"}[$sample_period])) -sum(increase(restclient_response_status_code_bucket{exported_service=\"pws\", job=\"$deploy_instance\", le=~\"400(.0)?\"}[$sample_period]))) / sum(increase(restclient_response_status_code_bucket{exported_service=\"sws\", job=\"$deploy_instance\", le=~\"500(.0)?\"}[$sample_period])) > bool 0.001",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -285,6 +456,6 @@
   "timezone": "browser",
   "title": "MyUW Status",
   "uid": "efe419ba-1da8-46f5-a937-3553bd081279",
-  "version": 12,
+  "version": 6,
   "weekStart": ""
 }

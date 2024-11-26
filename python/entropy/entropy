@@ -1,0 +1,69 @@
+#!/usr/bin/env python3
+
+"""Handy script for generating random string of characters.
+"""
+
+
+import random
+import string
+import argparse
+
+
+parser = argparse.ArgumentParser(description='Generate entropy.')
+parser.add_argument('-l', '--length', default=64, type=int,
+                   help='number of characters to generate')
+parser.add_argument('-c', '--clumping', default=0, type=int,
+                   help='number of characters per clump')
+parser.add_argument('-s', '--separator', default='-',
+                   help='character to separate groups')
+parser.add_argument('-t', '--lowercase', action="store_true", default=False,
+                   help='characters are lower case (tiny)')
+parser.add_argument('-m', '--mixedcase', action="store_true", default=False,
+                   help='characters are both upper and lower case')
+parser.add_argument('-x', '--hexidecimal', action="store_true", default=False,
+                   help='characters limited to hex values')
+parser.add_argument('-n', '--numeric', action="store_true", default=False,
+                   help='characters limited to numeric values')
+parser.add_argument('-a', '--anti-alpha-numeric', dest="nalpha", action="store_true", default=False,
+                   help='characters including numbers, letters and symbols')
+parser.add_argument('-g', '--guid', dest="guid", action="store_true", default=False,
+                   help='generate a GUID')
+
+
+def entropy(args):
+    r = random.SystemRandom()
+
+    if args.guid:
+        clumping = [8, 4, 4, 4, 12]
+        args.hexidecimal = True
+        args.lowercase = True
+    elif args.clumping > 0:
+        clumping = [args.clumping] * (args.length // args.clumping)
+    else:
+        clumping = [args.length]
+
+    chars = string.digits
+    if not args.numeric:
+        if not args.lowercase:
+            chars += string.ascii_uppercase[:6 if args.hexidecimal else 26]
+
+        if args.lowercase or args.mixedcase:
+            chars += string.ascii_lowercase[:6 if args.hexidecimal else 26]
+        if args.nalpha:
+            chars += string.punctuation
+
+    _entropy = ''
+    for clump in clumping:
+        if args.separator and _entropy:
+            _entropy += args.separator
+
+        _entropy += ''.join([r.choice(chars) for _ in iter(range(clump))])
+
+    return _entropy
+
+
+if __name__ == "__main__":
+    args = parser.parse_args()
+    print(entropy(args))
+
+

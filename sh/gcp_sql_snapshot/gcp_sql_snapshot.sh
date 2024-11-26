@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 ##
 ## A simple script to copy one gcp db to another.  Useful for copying a prod db snapshot to a test db.

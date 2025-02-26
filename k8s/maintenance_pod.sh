@@ -31,6 +31,11 @@ ${FORMAT_BOLD}DESCRIPTION${FORMAT_NORMAL}
         ${FORMAT_BOLD}-d${FORMAT_NORMAL}
                 increase debug output
 
+        ${FORMAT_BOLD}-s suffix${FORMAT_NORMAL}
+                suffix used for development instance deployment.
+                default is "test", but can be overrided if there
+                is a second development instance using, e.g., "dev"
+
         ${FORMAT_BOLD}-v var=value${FORMAT_NORMAL}
                 for creation of maintenance pod, override values
                 defined in applications values file. for example:
@@ -126,12 +131,16 @@ fi
 REPO_NAME=$1; shift
 
 HELM_VALUES=""
+DEV_INSTANCE_SUFFIX="test"
 DEBUG=0
-while getopts "dhv:" OPTION; do
+while getopts "dhs:v:" OPTION; do
     case "$OPTION" in
         h)
             man_page
             exit 0
+            ;;
+        s)
+            DEV_INSTANCE_SUFFIX=${OPTARG}
             ;;
         v)
             if [ -z "${HELM_VALUES}" ] ; then
@@ -151,7 +160,9 @@ done
 shift $((OPTIND-1))
 
 # Client Version: v1.27.4
-KUBECTL_VERSION=$(kubectl version --short 2>/dev/null | grep 'Client Version: v' | sed 's/Client Version: v//')
+KUBECTL_MAJOR_VERSION=$(kubectl version --client --output json | jq .clientVersion.major)
+KUBECTL_MINOR_MINORf=$(kubectl version --client --output json | jq .clientVersion.minor)
+KUBECTL_VERSION=${KUBECTL_MAJOR_VERSION}.${KUBECTL_MINOR_VERSION}
 if [ "$(echo -e "1.25\n$KUBECTL_VERSION" | sort -rV | head -n1)" = "1.25" ]; then
   echo "$0 needs kubect version 1.25 or greater"
   exit 1
@@ -165,15 +176,23 @@ APP_VALUES=$(get_app_values $REPO_ORG $REPO_NAME $REPO_BRANCH $APP_INSTANCE)
 
 APP=$(echo "$APP_VALUES" | yq -r '.repo' -)
 
-APP_NAME=$(kubectl get deployment --no-headers -o custom-columns=":metadata.name" | grep -E "${APP}-prod-(test|prod)$")
+echo "dev instance suffix $DEV_INSTANCE_SUFFIX"
+APP_NAME=$(kubectl get deployment --no-headers -o custom-columns=":metadata.name" | grep -E "${APP}-prod-(${DEV_INSTANCE_SUFFIX}|prod)$")
+if [ -z "$APP_NAME" ]; then
+    echo "unable to determine deployment label"
+    exit 1
+fi
 debug "identified k8s app deployment ${APP_NAME}"
 
-APP_INSTANCE=$(echo $APP_NAME | sed "s/^${APP}-prod-//")
 APP_IMAGE_TAG=$(kubectl get deployment -l app.kubernetes.io/name=$APP_NAME -o jsonpath='{.items[0].spec.template.spec.containers[0].image}' | sed 's/^.*[:]//')
 debug "app image tag identified ${APP_IMAGE_TAG}"
 
+APP_INSTANCE_SUFFIX=$(echo $APP_NAME | sed "s/^${APP}-prod-//")
+APP_INSTANCE=$([ "$APP_INSTANCE_SUFFIX" = "prod" ] && echo "prod" || echo "test")
+debug "app instance identified ${APP_INSTANCE}, suffix ${APP_INSTANCE_SUFFIX}"
+
 APP_HOME_DIR=$(echo ~/.k8s_maintenance)
-WORKING_DIR=${APP_HOME_DIR}/${APP}-maintenance-${APP_INSTANCE}
+WORKING_DIR=${APP_HOME_DIR}/${APP}-maintenance-${APP_INSTANCE_SUFFIX}
 VALUES_DIR=${WORKING_DIR}/values
 LOGGING_DIR=${WORKING_DIR}/log
 APP_VALUES_FILE=${VALUES_DIR}/${APP_INSTANCE}-values.yml

@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 39,
+  "id": 37,
   "links": [],
   "panels": [
     {
@@ -232,7 +232,7 @@
         },
         "definition": "label_values(kube_namespace_status_phase{namespace!~\"(mci|kube|gke|cert|ingress)-.*\"},namespace)",
         "description": "",
-        "label": "namespace",
+        "label": "Namespace",
         "name": "namespace",
         "options": [],
         "query": {
@@ -270,14 +270,14 @@
           "value": "$__all"
         },
         "datasource": "prometheus",
-        "definition": "label_values(management_command_duration{exported_instance=\"$service\", namespace=\"$namespace\"},exported_job)",
+        "definition": "label_values(management_command_exit{exported_instance=\"$service\", namespace=\"$namespace\"},exported_job)",
         "includeAll": true,
         "label": "Job",
         "name": "job",
         "options": [],
         "query": {
           "qryType": 1,
-          "query": "label_values(management_command_duration{exported_instance=\"$service\", namespace=\"$namespace\"},exported_job)",
+          "query": "label_values(management_command_exit{exported_instance=\"$service\", namespace=\"$namespace\"},exported_job)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,

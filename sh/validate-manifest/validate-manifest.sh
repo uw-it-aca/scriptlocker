@@ -5,7 +5,7 @@ trap 'echo $(Emphasize red "app deploy failed") && exit 2' ERR
 # default configuration
 INSTANCE="test"
 HELM_CHART_BRANCH=""
-HELM_APP_TAG="3.15.4"
+HELM_APP_TAG="3.17.0"
 
 Help()
 {

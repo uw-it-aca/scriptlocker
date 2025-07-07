@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 37,
+  "id": 41,
   "links": [],
   "panels": [
     {
@@ -111,8 +111,10 @@
             "type": "prometheus",
             "uid": "P1809F7CD0C75ACF3"
           },
-          "expr": "management_command_duration{exported_instance=~\"$service\",exported_job=~\"$job\"}",
+          "editorMode": "code",
+          "expr": "management_command_duration{namespace=\"$namespace\",exported_instance=~\"$service\",exported_job=~\"$job\"}",
           "legendFormat": "{{exported_job}}",
+          "range": true,
           "refId": "A"
         }
       ],
@@ -210,8 +212,10 @@
             "type": "prometheus",
             "uid": "P1809F7CD0C75ACF3"
           },
-          "expr": "management_command_exit{exported_instance=~\"$service\",exported_job=~\"$job\"}",
+          "editorMode": "code",
+          "expr": "management_command_exit{namespace=\"$namespace\",exported_instance=~\"$service\",exported_job=~\"$job\"}",
           "legendFormat": "{{exported_job}}",
+          "range": true,
           "refId": "A"
         }
       ],
@@ -294,6 +298,6 @@
   "timezone": "",
   "title": "Cronjob Status",
   "uid": "5o09Lo2Mk",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }

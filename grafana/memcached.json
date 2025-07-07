@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 34,
+  "id": 37,
   "links": [],
   "panels": [
     {
@@ -111,8 +111,10 @@
             "type": "prometheus",
             "uid": "P1809F7CD0C75ACF3"
           },
-          "expr": "100 * (memcached_current_connections{service=\"$service\"} / memcached_max_connections{service=\"$service\"})",
+          "editorMode": "code",
+          "expr": "100 * (memcached_current_connections{namespace=\"$namespace\",service=\"$service\"} / memcached_max_connections{namespace=\"$namespace\",service=\"$service\"})",
           "legendFormat": "{{pod}}",
+          "range": true,
           "refId": "A"
         }
       ],
@@ -179,8 +181,10 @@
             "type": "prometheus",
             "uid": "P1809F7CD0C75ACF3"
           },
-          "expr": "(sum (memcached_commands_total{status=\"hit\",command=\"get\",service=~\"$service\"}) / sum (memcached_commands_total{command=\"get\",service=~\"$service\"})) * 100",
+          "editorMode": "code",
+          "expr": "(sum (memcached_commands_total{status=\"hit\",command=\"get\",namespace=\"$namespace\",service=~\"$service\"}) / sum (memcached_commands_total{command=\"get\",namespace=\"$namespace\",service=~\"$service\"})) * 100",
           "legendFormat": "Hit Rate",
+          "range": true,
           "refId": "A"
         }
       ],
@@ -247,8 +251,10 @@
             "type": "prometheus",
             "uid": "P1809F7CD0C75ACF3"
           },
-          "expr": "100 * (sum (memcached_commands_total{command=\"get\",service=~\"$service\"}) / (sum (memcached_commands_total{command=\"get\",service=~\"$service\"}) + sum (memcached_commands_total{command=\"set\",service=~\"$service\"})))",
+          "editorMode": "code",
+          "expr": "100 * (sum (memcached_commands_total{command=\"get\",namespace=\"$namespace\",service=~\"$service\"}) / (sum (memcached_commands_total{command=\"get\",namespace=\"$namespace\",service=~\"$service\"}) + sum (memcached_commands_total{command=\"set\",namespace=\"$namespace\",service=~\"$service\"})))",
           "legendFormat": "get",
+          "range": true,
           "refId": "A"
         }
       ],
@@ -394,8 +400,10 @@
             "type": "prometheus",
             "uid": "P1809F7CD0C75ACF3"
           },
-          "expr": "memcached_current_bytes{service=\"$service\"}",
+          "editorMode": "code",
+          "expr": "memcached_current_bytes{namespace=\"$namespace\",service=\"$service\"}",
           "legendFormat": "{{pod}}",
+          "range": true,
           "refId": "A"
         },
         {
@@ -403,8 +411,10 @@
             "type": "prometheus",
             "uid": "P1809F7CD0C75ACF3"
           },
-          "expr": "avg(100 * (memcached_current_bytes{service=~\"$service\"} / memcached_limit_bytes{service=~\"$service\"}))",
+          "editorMode": "code",
+          "expr": "avg(100 * (memcached_current_bytes{namespace=\"$namespace\",service=~\"$service\"} / memcached_limit_bytes{namespace=\"$namespace\",service=~\"$service\"})",
           "legendFormat": "capacity %",
+          "range": true,
           "refId": "B"
         }
       ],
@@ -502,8 +512,10 @@
             "type": "prometheus",
             "uid": "P1809F7CD0C75ACF3"
           },
-          "expr": "sum(memcached_current_bytes{service=~\"$service\"})",
+          "editorMode": "code",
+          "expr": "sum(memcached_current_bytes{namespace=\"$namespace\",service=~\"$service\"})",
           "legendFormat": "bytes used",
+          "range": true,
           "refId": "A"
         },
         {
@@ -511,8 +523,10 @@
             "type": "prometheus",
             "uid": "P1809F7CD0C75ACF3"
           },
-          "expr": "sum(memcached_limit_bytes{service=~\"$service\"} - memcached_current_bytes{service=~\"$service\"})",
+          "editorMode": "code",
+          "expr": "sum(memcached_limit_bytes{namespace=\"$namespace\",service=~\"$service\"} - memcached_current_bytes{namespace=\"$namespace\",service=~\"$service\"})",
           "legendFormat": "bytes free",
+          "range": true,
           "refId": "B"
         }
       ],
@@ -610,8 +624,10 @@
             "type": "prometheus",
             "uid": "P1809F7CD0C75ACF3"
           },
-          "expr": "sum(rate(memcached_commands_total{command=\"get\",service=\"$service\"}[1m]))",
+          "editorMode": "code",
+          "expr": "sum(rate(memcached_commands_total{command=\"get\",namespace=\"$namespace\",service=\"$service\"}[1m]))",
           "legendFormat": "get",
+          "range": true,
           "refId": "A"
         },
         {
@@ -619,8 +635,10 @@
             "type": "prometheus",
             "uid": "P1809F7CD0C75ACF3"
           },
-          "expr": "sum(rate(memcached_commands_total{command=\"set\",service=\"$service\"}[1m]))",
+          "editorMode": "code",
+          "expr": "sum(rate(memcached_commands_total{command=\"set\",namespace=\"$namespace\",service=\"$service\"}[1m]))",
           "legendFormat": "set",
+          "range": true,
           "refId": "B"
         },
         {
@@ -628,8 +646,10 @@
             "type": "prometheus",
             "uid": "P1809F7CD0C75ACF3"
           },
-          "expr": "sum(rate(memcached_commands_total{command=\"flush\",service=\"$service\"}[1m]))",
+          "editorMode": "code",
+          "expr": "sum(rate(memcached_commands_total{command=\"flush\",namespace=\"$namespace\",service=\"$service\"}[1m]))",
           "legendFormat": "flush",
+          "range": true,
           "refId": "C"
         }
       ],
@@ -782,8 +802,10 @@
             "type": "prometheus",
             "uid": "P1809F7CD0C75ACF3"
           },
-          "expr": "memcached_current_items{service=~\"$service\"}",
+          "editorMode": "code",
+          "expr": "memcached_current_items{namespace=\"$namespace\",service=~\"$service\"}",
           "legendFormat": "{{pod}}",
+          "range": true,
           "refId": "A"
         },
         {
@@ -791,8 +813,10 @@
             "type": "prometheus",
             "uid": "P1809F7CD0C75ACF3"
           },
-          "expr": "sum(memcached_current_items{service=~\"$service\"})",
+          "editorMode": "code",
+          "expr": "sum(memcached_current_items{namespace=\"$namespace\",service=~\"$service\"})",
           "legendFormat": "total",
+          "range": true,
           "refId": "B"
         }
       ],
@@ -855,6 +879,6 @@
   "timezone": "",
   "title": "Memcached Capacity",
   "uid": "3GyyeYKGk",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }

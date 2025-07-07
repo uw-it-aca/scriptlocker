@@ -412,7 +412,7 @@
             "uid": "P1809F7CD0C75ACF3"
           },
           "editorMode": "code",
-          "expr": "avg(100 * (memcached_current_bytes{namespace=\"$namespace\",service=~\"$service\"} / memcached_limit_bytes{namespace=\"$namespace\",service=~\"$service\"})",
+          "expr": "avg(100 * (memcached_current_bytes{namespace=\"$namespace\",service=~\"$service\"} / memcached_limit_bytes{namespace=\"$namespace\",service=~\"$service\"}))",
           "legendFormat": "capacity %",
           "range": true,
           "refId": "B"
@@ -879,6 +879,6 @@
   "timezone": "",
   "title": "Memcached Capacity",
   "uid": "3GyyeYKGk",
-  "version": 2,
+  "version": 3,
   "weekStart": ""
 }

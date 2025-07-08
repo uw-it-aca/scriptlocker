@@ -255,6 +255,7 @@
         },
         "datasource": "prometheus",
         "definition": "label_values(management_command_exit{namespace=\"$namespace\"},exported_instance)",
+        "hide": 2,
         "includeAll": false,
         "label": "Service",
         "name": "service",
@@ -298,6 +299,6 @@
   "timezone": "",
   "title": "Cronjob Status",
   "uid": "5o09Lo2Mk",
-  "version": 2,
+  "version": 3,
   "weekStart": ""
 }

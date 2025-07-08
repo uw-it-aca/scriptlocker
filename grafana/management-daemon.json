@@ -197,7 +197,7 @@
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "tooltip": {
           "hideZeros": false,
@@ -298,7 +298,7 @@
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "tooltip": {
           "hideZeros": false,
@@ -314,13 +314,14 @@
             "uid": "P1809F7CD0C75ACF3"
           },
           "editorMode": "code",
-          "expr": "irate(canvas_event_count_total{namespace=\"$namespace\",service=~\"$service\"}[1m])",
-          "legendFormat": "{{ source }}",
+          "expr": "irate(canvas_event_count_total{namespace=\"$namespace\",endpoint=\"metrics\",pod=~\"$event_prefix-events.*\"}[1m])",
+          "instant": false,
+          "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Event Rate",
+      "title": "$job event rate",
       "type": "timeseries"
     }
   ],
@@ -335,33 +336,13 @@
           "text": "default",
           "value": "default"
         },
-        "definition": "label_values(kube_namespace_status_phase{namespace!~\"(mci|kube|gke|cert|ingress)-.*\"},namespace)",
+        "definition": "label_values(kube_namespace_created{namespace!~\"(mci|kube|gke|cert|ingress)-.*\"},namespace)",
         "label": "Namespace",
         "name": "namespace",
         "options": [],
         "query": {
           "qryType": 1,
-          "query": "label_values(kube_namespace_status_phase{namespace!~\"(mci|kube|gke|cert|ingress)-.*\"},namespace)",
-          "refId": "PrometheusVariableQueryEditor-VariableQuery"
-        },
-        "refresh": 1,
-        "regex": "",
-        "type": "query"
-      },
-      {
-        "current": {
-          "text": "canvas-prod-prod-daemon",
-          "value": "canvas-prod-prod-daemon"
-        },
-        "datasource": "prometheus",
-        "definition": "label_values(kube_service_info{service=~\".*-daemon\", namespace=\"$namespace\"},service)",
-        "includeAll": false,
-        "label": "Service",
-        "name": "service",
-        "options": [],
-        "query": {
-          "qryType": 1,
-          "query": "label_values(kube_service_info{service=~\".*-daemon\", namespace=\"$namespace\"},service)",
+          "query": "label_values(kube_namespace_created{namespace!~\"(mci|kube|gke|cert|ingress)-.*\"},namespace)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,
@@ -374,18 +355,37 @@
           "value": "$__all"
         },
         "datasource": "prometheus",
-        "definition": "label_values(management_daemon_command_exit{service=\"$service\", namespace=\"$namespace\"},exported_job)",
-        "includeAll": true,
-        "label": "Job",
+        "definition": "label_values(management_daemon_command_start{namespace=\"$namespace\"},exported_job)",
+        "includeAll": false,
+        "label": "Service",
         "name": "job",
         "options": [],
         "query": {
           "qryType": 1,
-          "query": "label_values(management_daemon_command_exit{service=\"$service\", namespace=\"$namespace\"},exported_job)",
+          "query": "label_values(management_daemon_command_start{namespace=\"$namespace\"},exported_job)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,
         "regex": "",
+        "type": "query"
+      },
+      {
+        "allowCustomValue": false,
+        "current": {
+          "text": "process-group",
+          "value": "process-group"
+        },
+        "definition": "query_result(label_replace(canvas_event_count_total{namespace=\"$namespace\",service=\"daemon\"}, \"event_label\", \"${1}_${2}_$3\", \"pod\", \"([a-z]+)-([^-]+)-([^-]*).*\"))",
+        "hide": 2,
+        "name": "event_prefix",
+        "options": [],
+        "query": {
+          "qryType": 3,
+          "query": "query_result(label_replace(canvas_event_count_total{namespace=\"$namespace\",service=\"daemon\"}, \"event_label\", \"${1}_${2}_$3\", \"pod\", \"([a-z]+)-([^-]+)-([^-]*).*\"))",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "/.*event_label=\"$job\".*,pod=\"([a-z]+-[^-]+)-events.*/",
         "type": "query"
       }
     ]
@@ -398,6 +398,6 @@
   "timezone": "",
   "title": "Management Daemon Status",
   "uid": "7EeKHthGk",
-  "version": 2,
+  "version": 3,
   "weekStart": ""
 }

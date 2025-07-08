@@ -579,7 +579,7 @@
           },
           "editorMode": "code",
           "exemplar": true,
-          "expr": "sum(restclient_request_timeout_total{namespace=\"$namespace\",$job_label=\"$job\"}) by (exported_service)",
+          "expr": "sum(restclient_request_timeout_total{namespace=\"$namespace\",$job_label=\"$job\",exported_service=\"$exported_service\"}) by (exported_service)",
           "interval": "",
           "legendFormat": "{{exported_service}}",
           "range": true,
@@ -686,6 +686,6 @@
   "timezone": "",
   "title": "Restclients Health",
   "uid": "e2SMPsFMz",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }

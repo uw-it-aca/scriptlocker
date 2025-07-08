@@ -356,7 +356,7 @@
         },
         "datasource": "prometheus",
         "definition": "label_values(management_daemon_command_start{namespace=\"$namespace\"},exported_job)",
-        "includeAll": false,
+        "includeAll": true,
         "label": "Service",
         "name": "job",
         "options": [],
@@ -398,6 +398,6 @@
   "timezone": "",
   "title": "Management Daemon Status",
   "uid": "7EeKHthGk",
-  "version": 3,
+  "version": 4,
   "weekStart": ""
 }

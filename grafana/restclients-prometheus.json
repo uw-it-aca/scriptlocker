@@ -159,10 +159,10 @@
         "color": {
           "exponent": 0.5,
           "fill": "#73BF69",
-          "mode": "opacity",
+          "mode": "scheme",
           "reverse": false,
           "scale": "exponential",
-          "scheme": "Oranges",
+          "scheme": "Warm",
           "steps": 128
         },
         "exemplars": {
@@ -187,7 +187,7 @@
           "axisPlacement": "left",
           "min": "0",
           "reverse": false,
-          "unit": "short"
+          "unit": "ms"
         }
       },
       "pluginVersion": "11.5.2",
@@ -199,7 +199,7 @@
           },
           "editorMode": "code",
           "exemplar": true,
-          "expr": "sum(increase(restclient_request_duration_seconds_bucket{namespace=\"$namespace\",$job_label=\"$job\",exported_service=\"$exported_service\"}[1m])) by (le)",
+          "expr": "sum(increase(restclient_request_duration_seconds_bucket{namespace=\"$namespace\",$job_label=\"$job\",exported_service=\"$exported_service\"}[2m])) by (le)",
           "interval": "",
           "legendFormat": "$exported_service",
           "range": true,

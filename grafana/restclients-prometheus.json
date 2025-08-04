@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 38,
+  "id": 37,
   "links": [],
   "panels": [
     {
@@ -152,7 +152,7 @@
       },
       "id": 12,
       "options": {
-        "calculate": true,
+        "calculate": false,
         "calculation": {},
         "cellGap": 2,
         "cellValues": {},
@@ -172,7 +172,7 @@
           "le": 1e-9
         },
         "legend": {
-          "show": false
+          "show": true
         },
         "rowsFrame": {
           "layout": "auto"
@@ -187,7 +187,7 @@
           "axisPlacement": "left",
           "min": "0",
           "reverse": false,
-          "unit": "ms"
+          "unit": "s"
         }
       },
       "pluginVersion": "11.5.2",
@@ -200,6 +200,7 @@
           "editorMode": "code",
           "exemplar": true,
           "expr": "sum(increase(restclient_request_duration_seconds_bucket{namespace=\"$namespace\",$job_label=\"$job\",exported_service=\"$exported_service\"}[2m])) by (le)",
+          "format": "heatmap",
           "interval": "",
           "legendFormat": "$exported_service",
           "range": true,
@@ -686,6 +687,6 @@
   "timezone": "",
   "title": "Restclients Health",
   "uid": "e2SMPsFMz",
-  "version": 2,
+  "version": 1,
   "weekStart": ""
 }

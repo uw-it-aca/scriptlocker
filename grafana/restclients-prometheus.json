@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 37,
+  "id": 36,
   "links": [],
   "panels": [
     {
@@ -114,14 +114,14 @@
           },
           "editorMode": "code",
           "exemplar": true,
-          "expr": "sum(irate(restclient_response_status_code_count{namespace=\"$namespace\",$job_label=\"$job\"}[1m])) by (exported_service)",
+          "expr": "sum(irate(restclient_response_status_code_count{namespace=\"$namespace\",$job_label=\"$job\",exported_service=~\"$exported_service\"}[1m])) by (exported_service)",
           "interval": "",
           "legendFormat": "{{exported_service}}",
           "range": true,
           "refId": "B"
         }
       ],
-      "title": "Restclient Request Rate (/min)",
+      "title": "$exported_service Request Rate (/min)",
       "type": "timeseries"
     },
     {
@@ -664,7 +664,7 @@
         },
         "datasource": "prometheus",
         "definition": "label_values(restclient_response_status_code_count{namespace=\"$namespace\", $job_label=\"$job\"},exported_service)",
-        "includeAll": false,
+        "includeAll": true,
         "label": "Restclient",
         "name": "exported_service",
         "options": [],
@@ -687,6 +687,6 @@
   "timezone": "",
   "title": "Restclients Health",
   "uid": "e2SMPsFMz",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }

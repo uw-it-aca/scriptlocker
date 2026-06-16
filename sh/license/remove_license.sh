@@ -16,7 +16,7 @@ if [ -z "${appdir}" ]; then
     usage
 fi
 
-copyright="# Copyright 202\d UW-IT, University of Washington"
+copyright="# Copyright 202\d UW-?IT, University of Washington"
 identifier="# SPDX-License-Identifier: ${license}"
 export copyright
 export identifier

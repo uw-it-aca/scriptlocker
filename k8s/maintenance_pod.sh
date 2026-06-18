@@ -1,6 +1,6 @@
 #!/bin/bash
 
-USAGE_STRING="${0##*/} [-h] <repo_name> [-d] [ [-v <value>] create | delete | cp src_file dst_file | sh ]"
+USAGE_STRING="${0##*/} [-h] <repo_name> [-d] [ [-v <value>] [-s <suffix>] [-t <token>] create | delete | cp src_file dst_file | sh ]"
 
 man_page() {
     FORMAT_BOLD=$(tput bold)
@@ -35,6 +35,11 @@ ${FORMAT_BOLD}DESCRIPTION${FORMAT_NORMAL}
                 suffix used for development instance deployment.
                 default is "test", but can be overrided if there
                 is a second development instance using, e.g., "dev"
+
+        ${FORMAT_BOLD}-t token${FORMAT_NORMAL}
+                Token is used with private GH repos to fetch values
+                Grab from URL in a browser session accessing the raw values file
+                Eg raw.githubusercontent.com/.../[test|prod]-values.yml?token=<TOKEN>
 
         ${FORMAT_BOLD}-v var=value${FORMAT_NORMAL}
                 for creation of maintenance pod, override values
@@ -111,7 +116,14 @@ maintenance_pod_name() {
 
 get_app_values() {
     TMP_VALUES=/tmp/maintenance-pod-app-values
-    VALUES_RESPONSE=$(curl -o $TMP_VALUES -w "%{http_code}" -s https://raw.githubusercontent.com/${1}/${2}/${3}/docker/${4}-values.yml)
+    VALUES_URL="https://raw.githubusercontent.com/${1}/${2}/${3}/docker/${4}-values.yml"
+
+    if [ -n "$GITHUB_PRIVATE_REPO_TOKEN" ]; then
+        VALUES_URL="https://raw.githubusercontent.com/${1}/${2}/refs/heads/${3}/docker/${4}-values.yml?token=${GITHUB_PRIVATE_REPO_TOKEN}"
+    fi
+
+    debug "fetching values from ${VALUES_URL}"
+    VALUES_RESPONSE=$(curl -o $TMP_VALUES -w "%{http_code}" -s ${VALUES_URL})
 
     if [ $VALUES_RESPONSE -ne 200 ]; then
         echo "problem fetching values from repo (${VALUES_RESPONSE}).  repo name \"${REPO_NAME}\" correct?"
@@ -133,7 +145,7 @@ REPO_NAME=$1; shift
 HELM_VALUES=""
 DEV_INSTANCE_SUFFIX="test"
 DEBUG=0
-while getopts "dhs:v:" OPTION; do
+while getopts "dhst:v:" OPTION; do
     case "$OPTION" in
         h)
             man_page
@@ -141,6 +153,9 @@ while getopts "dhs:v:" OPTION; do
             ;;
         s)
             DEV_INSTANCE_SUFFIX=${OPTARG}
+            ;;
+        t)
+            GITHUB_PRIVATE_REPO_TOKEN=${OPTARG}
             ;;
         v)
             if [ -z "${HELM_VALUES}" ] ; then
@@ -168,8 +183,11 @@ if [ "$(echo -e "1.25\n$KUBECTL_VERSION" | sort -rV | head -n1)" = "1.25" ]; the
   exit 1
 fi
 
-debug "fetch prod values to determine app name (.repo value)"
+debug "fetch instance suffix values to determine app name (.repo value)"
 APP_INSTANCE=prod
+if [ -n "DEV_INSTANCE_SUFFIX" ]; then
+    APP_INSTANCE=$DEV_INSTANCE_SUFFIX
+fi
 REPO_ORG=uw-it-aca
 REPO_BRANCH=main
 APP_VALUES=$(get_app_values $REPO_ORG $REPO_NAME $REPO_BRANCH $APP_INSTANCE)
@@ -235,7 +253,7 @@ rm -rf $CHART_DIR
 git clone --depth 1 $CHART_REPO_PATH --branch $CHART_BRANCH $CHART_DIR &> $LOGGING_DIR/chart-clone.log
 
 debug "fetch app ${APP_INSTANCE}-values.yml values to $APP_VALUES_FILE"
-echo "$(get_app_values $REPO_ORG $REPO_NAME $REPO_BRANCH $APP_INSTANCE)" > $APP_VALUES_FILE
+echo "$(get_app_values $REPO_ORG $REPO_NAME $REPO_BRANCH $APP_INSTANCE $GITHUB_PRIVATE_REPO_TOKEN)" > $APP_VALUES_FILE
 
 debug "initialize maintenance deployment values, disabling unnecessary components and k8s objects"
 cat <<EOF > ${VALUES_DIR}/${WORKING_VALUES_FILENAME}

@@ -83,7 +83,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 14,
+        "h": 11,
         "w": 24,
         "x": 0,
         "y": 0
@@ -134,15 +134,11 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "red"
               },
               {
-                "color": "red",
+                "color": "dark-green",
                 "value": 0
-              },
-              {
-                "color": "green",
-                "value": 1
               }
             ]
           }
@@ -153,7 +149,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 14
+        "y": 11
       },
       "id": 2,
       "options": {
@@ -177,13 +173,13 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum(sum_over_time(service_api_request_count_total{service=\"$service\",service_api=\"$service_api\",namespace=~\"$namespace\"}[60m:20m]))",
+          "expr": "sum(rate(service_api_request_count_total{service=\"$service\",service_api=\"$service_api\",namespace=~\"$namespace\"}[$__range]))",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Requests over the last hour",
+      "title": "Average requests/second",
       "type": "stat"
     }
   ],
@@ -253,12 +249,12 @@
     ]
   },
   "time": {
-    "from": "now-24h",
-    "to": "now"
+    "from": "2026-08-30T09:24:20.756Z",
+    "to": "2026-08-30T14:50:22.659Z"
   },
   "timepicker": {},
   "timezone": "browser",
   "title": "Service API Requests",
   "uid": "e5af2d23-8143-4353-adcd-41ed4cffd2fa",
-  "version": 3
+  "version": 2
 }
